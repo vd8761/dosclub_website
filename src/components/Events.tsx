@@ -20,7 +20,7 @@ export default function Events() {
         scrollTrigger: { trigger: "[data-events]", start: "top 82%" },
       });
     },
-    { scope: root }
+    { scope: root },
   );
 
   return (
@@ -28,8 +28,8 @@ export default function Events() {
       <div className="container-x">
         <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
           <div>
-            <p className="label mb-6">/ 04 — Events</p>
-            <h2 className="display text-[clamp(2.2rem,5vw,4rem)] leading-[1.02]">
+            <p className="label mb-6">/ 04 - Events</p>
+            <h2 className="display text-4xl leading-[1.02] sm:text-5xl lg:text-6xl xl:text-7xl">
               <RevealText
                 text="Workshops, webinars &"
                 as="span"
@@ -67,7 +67,7 @@ export default function Events() {
                   {e.title}
                 </h3>
                 <p className="mt-1 text-sm text-muted md:hidden">
-                  {e.host} · {e.location}
+                  {e.host} | {e.location}
                 </p>
               </div>
 
@@ -81,7 +81,7 @@ export default function Events() {
                   {e.tag}
                 </span>
                 <span className="ml-3 text-violet opacity-0 transition-opacity duration-300 group-hover:opacity-100 md:ml-0">
-                  ↗
+                  ^
                 </span>
               </div>
             </div>

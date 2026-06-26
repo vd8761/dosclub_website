@@ -20,7 +20,7 @@ export default function About() {
         scrollTrigger: { trigger: "[data-pillars]", start: "top 80%" },
       });
     },
-    { scope: root }
+    { scope: root },
   );
 
   return (
@@ -28,10 +28,10 @@ export default function About() {
       <div className="container-x">
         <div className="grid gap-12 lg:grid-cols-12 lg:gap-16">
           <div className="lg:col-span-7">
-            <p className="label mb-8">/ 01 — About the club</p>
-            <h2 className="display text-[clamp(1.9rem,4.5vw,3.6rem)] leading-[1.05]">
+            <p className="label mb-8">/ 01 - About the club</p>
+            <h2 className="display text-3xl leading-[1.05] sm:text-4xl lg:text-5xl xl:text-6xl">
               <RevealText
-                text="We're an open source community built to help curious people grow — through collaboration, guidance and a lot of building."
+                text="We're an open source community built to help curious people grow - through collaboration, guidance and a lot of building."
                 as="span"
                 scrub
               />
@@ -42,7 +42,7 @@ export default function About() {
             <p className="text-muted leading-relaxed">
               Descience Open Source Club brings learners together to sharpen
               their skills with hands-on projects, expert mentorship and
-              continuous feedback. No gatekeeping — just people helping people
+              continuous feedback. No gatekeeping - just people helping people
               ship better work, in the open.
             </p>
             <div className="flex items-center gap-3 text-sm text-muted">

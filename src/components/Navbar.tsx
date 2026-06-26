@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Logo from "./Logo";
 import { nav } from "@/data/site";
 import { scrollToSection } from "./SmoothScroll";
 
@@ -9,7 +8,20 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [active, setActive] = useState(-1);
+  const [heroLogoVisible, setHeroLogoVisible] = useState(true);
   const barRef = useRef<HTMLSpanElement>(null);
+
+  // The navbar logo only appears once the hero logo leaves the viewport.
+  useEffect(() => {
+    const heroLogo = document.querySelector("[data-hero-logo]");
+    if (!heroLogo) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => setHeroLogoVisible(entry.isIntersecting),
+      { threshold: 0 },
+    );
+    obs.observe(heroLogo);
+    return () => obs.disconnect();
+  }, []);
 
   // Scroll state + progress branch line
   useEffect(() => {
@@ -39,7 +51,7 @@ export default function Navbar() {
           }
         });
       },
-      { rootMargin: "-45% 0px -50% 0px", threshold: 0 }
+      { rootMargin: "-45% 0px -50% 0px", threshold: 0 },
     );
     sections.forEach((s) => obs.observe(s));
     return () => obs.disconnect();
@@ -66,11 +78,18 @@ export default function Navbar() {
         <div className="container-x grid h-16 grid-cols-2 items-center md:grid-cols-[1fr_auto_1fr]">
           <button
             onClick={() => go("#top")}
-            className="justify-self-start"
             aria-label="Home"
             data-cursor
+            className={`justify-self-start transition-opacity duration-500 ${
+              heroLogoVisible ? "pointer-events-none opacity-0" : "opacity-100"
+            }`}
           >
-            <Logo />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/logo.webp"
+              alt="Descience Open Source Club"
+              className="h-9 w-auto"
+            />
           </button>
 
           {/* Commit-timeline nav */}
@@ -87,9 +106,7 @@ export default function Navbar() {
                   >
                     <span
                       className={`font-mono text-[10.5px] uppercase tracking-[0.14em] transition-colors duration-300 ${
-                        isActive
-                          ? "text-fg"
-                          : "text-muted group-hover:text-fg"
+                        isActive ? "text-fg" : "text-muted group-hover:text-fg"
                       }`}
                     >
                       {item.label}
@@ -151,7 +168,9 @@ export default function Navbar() {
       {/* Mobile overlay */}
       <div
         className={`fixed inset-0 z-40 bg-ink/97 backdrop-blur-xl transition-all duration-500 md:hidden ${
-          open ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
+          open
+            ? "pointer-events-auto opacity-100"
+            : "pointer-events-none opacity-0"
         }`}
       >
         <nav className="container-x flex h-full flex-col justify-center gap-1">

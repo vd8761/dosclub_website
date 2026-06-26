@@ -15,22 +15,34 @@ export default function Domains() {
       mm.add("(min-width: 1024px)", () => {
         const el = track.current;
         if (!el) return;
-        const distance = () => el.scrollWidth - window.innerWidth;
-        gsap.to(el, {
-          x: () => -distance(),
-          ease: "none",
+        const cards = el.querySelectorAll<HTMLElement>("article");
+        const last = cards[cards.length - 1];
+        if (!last) return;
+
+        // Translate so the LAST card sits at the centre of the screen...
+        const targetX = () =>
+          Math.min(
+            0,
+            window.innerWidth / 2 - (last.offsetLeft + last.offsetWidth / 2),
+          );
+        const travel = Math.abs(targetX());
+        const hold = window.innerHeight * 0.6; // ...then linger before unpinning
+
+        const tl = gsap.timeline({
           scrollTrigger: {
             trigger: root.current,
             start: "top top",
-            end: () => "+=" + distance(),
+            end: () => "+=" + (Math.abs(targetX()) + window.innerHeight * 0.6),
             pin: true,
             scrub: 1,
             invalidateOnRefresh: true,
           },
         });
+        tl.to(el, { x: () => targetX(), ease: "none", duration: travel });
+        tl.to({}, { duration: hold });
       });
     },
-    { scope: root }
+    { scope: root },
   );
 
   return (
@@ -41,12 +53,12 @@ export default function Domains() {
     >
       <div
         ref={track}
-        className="flex flex-col gap-6 px-5 py-20 md:px-8 lg:h-screen lg:flex-row lg:items-center lg:gap-8 lg:py-0 lg:pl-[8vw] lg:pr-[40vw]"
+        className="relative flex flex-col gap-6 px-5 py-20 md:px-8 lg:h-screen lg:flex-row lg:items-center lg:gap-8 lg:py-0 lg:pl-[8vw] lg:pr-[10vw]"
       >
         {/* Intro panel */}
         <div className="flex shrink-0 flex-col justify-center lg:h-screen lg:w-[34rem] lg:pr-12">
-          <p className="label mb-6">/ 02 — Focus areas</p>
-          <h2 className="display text-[clamp(2.2rem,6vw,4.5rem)] leading-[1]">
+          <p className="label mb-6">/ 02 - Focus areas</p>
+          <h2 className="display text-4xl leading-[1] sm:text-5xl lg:text-6xl xl:text-7xl">
             Four domains.
             <br />
             <span className="text-gradient">One community.</span>
@@ -56,7 +68,7 @@ export default function Domains() {
             real, shippable work.
           </p>
           <p className="label mt-10 hidden items-center gap-3 lg:flex">
-            Drag / scroll <span className="text-violet">→</span>
+            Drag / scroll <span className="text-violet">{"->"}</span>
           </p>
         </div>
 

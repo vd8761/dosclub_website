@@ -6,7 +6,7 @@ const IMAGE_RE = /\.(png|jpe?g|svg|webp|avif|gif)$/i;
 /**
  * Reads every image in `public/partners/<folder>` at build/render time (server).
  * Drop a logo into the folder and it shows up automatically on the next
- * build (or instantly on dev refresh) — no code changes needed.
+ * build (or instantly on dev refresh) - no code changes needed.
  */
 export function listPartnerLogos(folder: string): string[] {
   const dir = path.join(process.cwd(), "public", "partners", folder);

@@ -28,14 +28,14 @@ export default function Team() {
         scrollTrigger: { trigger: "[data-team]", start: "top 80%" },
       });
     },
-    { scope: root }
+    { scope: root },
   );
 
   return (
     <section id="team" ref={root} className="section">
       <div className="container-x">
-        <p className="label mb-6">/ 05 — The people</p>
-        <h2 className="display max-w-3xl text-[clamp(2.2rem,5vw,4rem)] leading-[1.02]">
+        <p className="label mb-6">/ 05 - The people</p>
+        <h2 className="display max-w-3xl text-4xl leading-[1.02] sm:text-5xl lg:text-6xl xl:text-7xl">
           <RevealText
             text="Mentors who've shipped, helping you"
             as="span"
@@ -74,7 +74,7 @@ export default function Team() {
               <p className="mt-4 text-sm text-muted">{m.title}</p>
               <span className="mt-6 h-px w-full bg-line" />
               <span className="label mt-6 inline-flex items-center gap-2 transition-colors group-hover:text-fg">
-                Connect <span className="text-green">→</span>
+                Connect <span className="text-green">{"->"}</span>
               </span>
             </article>
           ))}
@@ -100,7 +100,7 @@ export default function Team() {
               href="#join"
               className="label mt-6 inline-flex items-center gap-2 text-fg"
             >
-              Reach out <span className="text-green">→</span>
+              Reach out <span className="text-green">{"->"}</span>
             </a>
           </article>
         </div>

@@ -27,7 +27,7 @@ export default function Stats() {
         });
       });
     },
-    { scope: root }
+    { scope: root },
   );
 
   return (
@@ -43,7 +43,7 @@ export default function Stats() {
             data-value={s.value}
             className="flex flex-col gap-2 py-12 pr-6 lg:py-16"
           >
-            <div className="display text-5xl font-semibold tracking-tight md:text-6xl">
+            <div className="display text-5xl font-semibold md:text-6xl">
               <span className="num text-gradient">0</span>
               <span className="text-gradient">{s.suffix}</span>
             </div>

@@ -20,14 +20,14 @@ export default function Join() {
         scrollTrigger: { trigger: root.current, start: "top 75%" },
       });
     },
-    { scope: root }
+    { scope: root },
   );
 
   const submit = (e: FormEvent) => {
     e.preventDefault();
     const subject = encodeURIComponent(`Club enquiry from ${form.name}`);
     const body = encodeURIComponent(
-      `${form.message}\n\n— ${form.name} (${form.email})`
+      `${form.message}\n\n- ${form.name} (${form.email})`,
     );
     window.location.href = `mailto:${site.email}?subject=${subject}&body=${body}`;
     setSent(true);
@@ -51,8 +51,8 @@ export default function Join() {
 
           <div className="grid gap-12 lg:grid-cols-2 lg:gap-20">
             <div data-join-head>
-              <p className="label mb-6">/ 08 — Join us</p>
-              <h2 className="display text-[clamp(2.4rem,6vw,5rem)] leading-[0.98]">
+              <p className="label mb-6">/ 08 - Join us</p>
+              <h2 className="display text-4xl leading-[0.98] sm:text-5xl lg:text-7xl xl:text-8xl">
                 Ready to build
                 <br />
                 <span className="text-gradient">in the open?</span>
@@ -78,7 +78,7 @@ export default function Join() {
 
             {sent ? (
               <div className="flex flex-col items-start justify-center">
-                <span className="text-5xl">✦</span>
+                <span className="text-5xl">*</span>
                 <h3 className="display mt-6 text-3xl font-semibold">
                   Almost there!
                 </h3>
@@ -118,8 +118,11 @@ export default function Join() {
                     setForm({ ...form, message: e.target.value })
                   }
                 />
-                <button type="submit" className="btn btn-primary mt-2 justify-center">
-                  Send message <span aria-hidden>→</span>
+                <button
+                  type="submit"
+                  className="btn btn-primary mt-2 justify-center"
+                >
+                  Send message <span aria-hidden>{"->"}</span>
                 </button>
               </form>
             )}

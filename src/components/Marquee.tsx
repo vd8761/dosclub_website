@@ -13,6 +13,7 @@ export default function Marquee() {
   useGSAP(
     () => {
       if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      if (!track.current) return;
 
       // Skew the marquee based on scroll velocity, easing back to flat when idle.
       const skewTo = gsap.quickTo(track.current, "skewX", {
@@ -34,7 +35,7 @@ export default function Marquee() {
       gsap.ticker.add(tick);
       return () => gsap.ticker.remove(tick);
     },
-    { scope: root }
+    { scope: root },
   );
 
   return (
@@ -48,9 +49,11 @@ export default function Marquee() {
             key={i}
             className="display flex shrink-0 items-center gap-8 px-8 text-2xl font-medium md:text-4xl"
           >
-            <span className={i % 2 ? "text-gradient-2" : "text-fg"}>{word}</span>
+            <span className={i % 2 ? "text-gradient-2" : "text-fg"}>
+              {word}
+            </span>
             <span className="text-green" aria-hidden>
-              ✳
+              *
             </span>
           </span>
         ))}

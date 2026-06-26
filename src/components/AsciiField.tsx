@@ -6,7 +6,8 @@ import { useEffect, useRef } from "react";
  * Interactive ASCII field rendered on a canvas.
  * - A diagonal "wave" of glyphs flows with scroll position + velocity.
  * - On desktop, the cursor reveals a bright spotlight of characters.
- * Glyphs are drawn from code / git / open-source punctuation.
+ * Only animates while the hero is on screen, and skips near-invisible
+ * cells, to keep the rest of the page smooth.
  */
 export default function AsciiField({ className = "" }: { className?: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -18,15 +19,17 @@ export default function AsciiField({ className = "" }: { className?: string }) {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reduce = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
     const coarse = window.matchMedia("(pointer: coarse)").matches;
 
-    const chars = "</>{}()[];=+-*$#01_λ:.".split("");
-    const cell = coarse ? 26 : 21;
+    const chars = "</>{}()[];=+-*$#01_L:.".split("");
+    const cell = coarse ? 28 : 22;
     const radius = 175;
+    const SKIP = 0.05; // don't draw barely-visible cells
 
-    // Pre-quantised green palette (forest) to avoid per-cell string churn.
-    const STEPS = 26;
+    const STEPS = 22;
     const palette = Array.from({ length: STEPS }, (_, i) => {
       const a = (i / (STEPS - 1)) * 0.9;
       return `rgba(31,81,48,${a.toFixed(3)})`;
@@ -42,7 +45,7 @@ export default function AsciiField({ className = "" }: { className?: string }) {
     let vel = 0;
 
     function resize() {
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
       const r = parent!.getBoundingClientRect();
       w = r.width;
       h = r.height;
@@ -70,10 +73,12 @@ export default function AsciiField({ className = "" }: { className?: string }) {
       mouse.tx = e.clientX - r.left;
       mouse.ty = e.clientY - r.top;
     };
-    if (!coarse) window.addEventListener("mousemove", onMove, { passive: true });
+    if (!coarse)
+      window.addEventListener("mousemove", onMove, { passive: true });
 
     let frame = 0;
     let raf = 0;
+    let running = false;
 
     function render() {
       frame++;
@@ -86,50 +91,77 @@ export default function AsciiField({ className = "" }: { className?: string }) {
 
       ctx!.clearRect(0, 0, w, h);
 
-      // flicker a few glyphs
-      for (let i = 0; i < 6; i++)
-        grid[(Math.random() * grid.length) | 0] =
-          Math.floor(Math.random() * chars.length);
+      for (let i = 0; i < 5; i++)
+        grid[(Math.random() * grid.length) | 0] = Math.floor(
+          Math.random() * chars.length,
+        );
 
       const boost = vel * 0.25;
       for (let y = 0; y < rows; y++) {
         for (let x = 0; x < cols; x++) {
-          const wave = Math.sin(x * 0.34 + y * 0.26 - scroll * 0.012 - frame * 0.02);
-          let a = 0.05 + Math.max(0, wave) * 0.1 + boost;
+          const wave = Math.sin(
+            x * 0.34 + y * 0.26 - scroll * 0.012 - frame * 0.02,
+          );
+          let a = 0.04 + Math.max(0, wave) * 0.1 + boost;
           if (!coarse) {
-            const dx = (x * cell + cell / 2) - mouse.x;
-            const dy = (y * cell + cell / 2) - mouse.y;
+            const dx = x * cell + cell / 2 - mouse.x;
+            const dy = y * cell + cell / 2 - mouse.y;
             const d = Math.sqrt(dx * dx + dy * dy);
             if (d < radius) a += (1 - d / radius) * 0.75;
           }
+          if (a < SKIP) continue; // skip near-invisible cells
           let idx = (a / 0.9) * (STEPS - 1);
-          idx = idx < 1 ? 1 : idx > STEPS - 1 ? STEPS - 1 : idx | 0;
+          idx = idx > STEPS - 1 ? STEPS - 1 : idx | 0;
           ctx!.fillStyle = palette[idx];
           ctx!.fillText(
             chars[grid[y * cols + x]],
             x * cell + cell / 2,
-            y * cell + cell / 2
+            y * cell + cell / 2,
           );
         }
       }
       raf = requestAnimationFrame(render);
     }
 
-    if (reduce) {
-      ctx.fillStyle = "rgba(31,81,48,0.06)";
-      for (let y = 0; y < rows; y++)
-        for (let x = 0; x < cols; x++)
-          ctx.fillText(
-            chars[grid[y * cols + x]],
-            x * cell + cell / 2,
-            y * cell + cell / 2
-          );
-    } else {
+    function start() {
+      if (running || reduce) return;
+      running = true;
       raf = requestAnimationFrame(render);
     }
+    function stop() {
+      running = false;
+      cancelAnimationFrame(raf);
+    }
+
+    function staticDraw() {
+      ctx!.clearRect(0, 0, w, h);
+      ctx!.fillStyle = "rgba(31,81,48,0.06)";
+      for (let y = 0; y < rows; y++)
+        for (let x = 0; x < cols; x++)
+          ctx!.fillText(
+            chars[grid[y * cols + x]],
+            x * cell + cell / 2,
+            y * cell + cell / 2,
+          );
+    }
+
+    // Only run the loop while the hero is on screen.
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          if (reduce) staticDraw();
+          else start();
+        } else {
+          stop();
+        }
+      },
+      { threshold: 0 },
+    );
+    io.observe(canvas);
 
     return () => {
-      cancelAnimationFrame(raf);
+      stop();
+      io.disconnect();
       ro.disconnect();
       window.removeEventListener("mousemove", onMove);
     };

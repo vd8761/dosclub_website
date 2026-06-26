@@ -1,9 +1,9 @@
 @import "tailwindcss";
 
 /* =========================================================
-   DESCIENCE OPEN SOURCE CLUB — design tokens
-   Light theme · green family built around the logo (#65AD53)
-   ========================================================= */
+ DESCIENCE OPEN SOURCE CLUB - design tokens
+ Light theme - green family built around the logo (#65AD53)
+ ========================================================= */
 @theme {
   /* Surfaces (light) */
   --color-ink: #f5f8ef; /* page background */
@@ -22,14 +22,15 @@
   --color-moss: #2f9e7a; /* teal-green secondary */
   --color-leaf: #7cb928; /* lime / chartreuse */
 
-  /* Legacy aliases → mapped onto the green family so existing
-     utility classes keep working after the recolor. */
+  /* Legacy aliases -> mapped onto the green family so existing
+ utility classes keep working after the recolor. */
   --color-violet: var(--color-green);
   --color-cyan: var(--color-moss);
   --color-lime: var(--color-leaf);
   --color-pink: var(--color-forest);
 
-  --font-display: var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
+  --font-display:
+    var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-jetbrains), ui-monospace, monospace;
 
   --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
@@ -81,8 +82,8 @@ a {
 }
 
 /* =========================================================
-   Layout helpers
-   ========================================================= */
+ Layout helpers
+ ========================================================= */
 .container-x {
   width: 100%;
   max-width: var(--container);
@@ -101,12 +102,12 @@ a {
 }
 
 /* =========================================================
-   Typography helpers
-   ========================================================= */
+ Typography helpers
+ ========================================================= */
 .display {
   font-weight: 600;
   line-height: 0.95;
-  letter-spacing: -0.03em;
+  letter-spacing: 0;
 }
 
 .text-gradient {
@@ -137,8 +138,8 @@ a {
 }
 
 /* =========================================================
-   Surfaces & effects
-   ========================================================= */
+ Surfaces & effects
+ ========================================================= */
 .glass {
   background: rgba(255, 255, 255, 0.72);
   border: 1px solid var(--color-line);
@@ -154,11 +155,8 @@ a {
 }
 
 .grid-bg {
-  background-image: linear-gradient(
-      to right,
-      var(--color-stroke) 1px,
-      transparent 1px
-    ),
+  background-image:
+    linear-gradient(to right, var(--color-stroke) 1px, transparent 1px),
     linear-gradient(to bottom, var(--color-stroke) 1px, transparent 1px);
   background-size: 64px 64px;
 }
@@ -176,7 +174,7 @@ a {
   );
 }
 
-/* film grain overlay — kept very subtle on a light theme */
+/* film grain overlay - kept very subtle on a light theme */
 .noise::after {
   content: "";
   position: fixed;
@@ -188,8 +186,8 @@ a {
 }
 
 /* =========================================================
-   Text reveal masks (RevealText)
-   ========================================================= */
+ Text reveal masks (RevealText)
+ ========================================================= */
 .reveal-word {
   display: inline-block;
   overflow: hidden;
@@ -221,8 +219,8 @@ a {
 }
 
 /* =========================================================
-   Scroll-driven word highlight (ScrollHighlightText)
-   ========================================================= */
+ Scroll-driven word highlight (ScrollHighlightText)
+ ========================================================= */
 .hl-word {
   display: inline;
   color: var(--color-muted);
@@ -230,8 +228,8 @@ a {
 }
 
 /* =========================================================
-   Buttons
-   ========================================================= */
+ Buttons
+ ========================================================= */
 .btn {
   position: relative;
   display: inline-flex;
@@ -243,8 +241,11 @@ a {
   text-transform: uppercase;
   padding: 0.95rem 1.5rem;
   border-radius: 999px;
-  transition: transform 0.5s var(--ease-expo), background 0.3s ease,
-    color 0.3s ease, border-color 0.3s ease;
+  transition:
+    transform 0.5s var(--ease-expo),
+    background 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease;
 }
 .btn-primary {
   background: var(--color-green-dark);
@@ -264,8 +265,8 @@ a {
 }
 
 /* =========================================================
-   Marquee
-   ========================================================= */
+ Marquee
+ ========================================================= */
 @keyframes marquee {
   to {
     transform: translateX(-50%);

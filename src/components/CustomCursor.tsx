@@ -13,10 +13,22 @@ export default function CustomCursor() {
 
     gsap.set([ring.current, dot.current], { xPercent: -50, yPercent: -50 });
 
-    const ringX = gsap.quickTo(ring.current, "x", { duration: 0.55, ease: "power3" });
-    const ringY = gsap.quickTo(ring.current, "y", { duration: 0.55, ease: "power3" });
-    const dotX = gsap.quickTo(dot.current, "x", { duration: 0.12, ease: "power3" });
-    const dotY = gsap.quickTo(dot.current, "y", { duration: 0.12, ease: "power3" });
+    const ringX = gsap.quickTo(ring.current, "x", {
+      duration: 0.55,
+      ease: "power3",
+    });
+    const ringY = gsap.quickTo(ring.current, "y", {
+      duration: 0.55,
+      ease: "power3",
+    });
+    const dotX = gsap.quickTo(dot.current, "x", {
+      duration: 0.12,
+      ease: "power3",
+    });
+    const dotY = gsap.quickTo(dot.current, "y", {
+      duration: 0.12,
+      ease: "power3",
+    });
 
     const move = (e: MouseEvent) => {
       ringX(e.clientX);
@@ -27,7 +39,7 @@ export default function CustomCursor() {
 
     const over = (e: MouseEvent) => {
       const interactive = (e.target as HTMLElement)?.closest(
-        "a, button, [data-cursor]"
+        "a, button, [data-cursor]",
       );
       gsap.to(ring.current, {
         scale: interactive ? 1.9 : 1,

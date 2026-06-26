@@ -1,4 +1,5 @@
 import Navbar from "@/components/Navbar";
+import SmoothScroll from "@/components/SmoothScroll";
 import Hero from "@/components/Hero";
 import Marquee from "@/components/Marquee";
 import About from "@/components/About";
@@ -17,21 +18,23 @@ export default function Home() {
   return (
     <>
       <Navbar />
-      <main>
-        <Hero />
-        <Marquee />
-        <About />
-        <Stats />
-        <Manifesto />
-        <Domains />
-        <Journey />
-        <Events />
-        <Team />
-        <Partners />
-        <Faq />
-        <Join />
-      </main>
-      <Footer />
+      <SmoothScroll>
+        <main>
+          <Hero />
+          <Marquee />
+          <About />
+          <Stats />
+          <Manifesto />
+          <Domains />
+          <Journey />
+          <Events />
+          <Team />
+          <Partners />
+          <Faq />
+          <Join />
+        </main>
+        <Footer />
+      </SmoothScroll>
     </>
   );
 }
