@@ -1,0 +1,340 @@
+@import "tailwindcss";
+
+/* =========================================================
+   DESCIENCE OPEN SOURCE CLUB — design tokens
+   Light theme · green family built around the logo (#65AD53)
+   ========================================================= */
+@theme {
+  /* Surfaces (light) */
+  --color-ink: #f5f8ef; /* page background */
+  --color-ink-soft: #eef3e5; /* alternating sections */
+  --color-ink-2: #e6eedb; /* subtle hover surface */
+  --color-surface: #ffffff; /* cards */
+  --color-fg: #16261a; /* near-black green text */
+  --color-muted: #5f6f5b; /* muted text */
+  --color-line: rgba(22, 46, 28, 0.12);
+  --color-stroke: rgba(31, 81, 48, 0.12); /* outline ghost text + grid */
+
+  /* Green family */
+  --color-green: #65ad53; /* brand / logo */
+  --color-green-dark: #3c7d2c; /* readable accent on light */
+  --color-forest: #1f5130; /* deep */
+  --color-moss: #2f9e7a; /* teal-green secondary */
+  --color-leaf: #7cb928; /* lime / chartreuse */
+
+  /* Legacy aliases → mapped onto the green family so existing
+     utility classes keep working after the recolor. */
+  --color-violet: var(--color-green);
+  --color-cyan: var(--color-moss);
+  --color-lime: var(--color-leaf);
+  --color-pink: var(--color-forest);
+
+  --font-display: var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
+
+  --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+:root {
+  --container: 1320px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background-color: var(--color-ink);
+  color: var(--color-fg);
+  font-family: var(--font-display);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: var(--color-green);
+  color: #fff;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-ink-soft);
+}
+::-webkit-scrollbar-thumb {
+  background: #b8ccaa;
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-green);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* =========================================================
+   Layout helpers
+   ========================================================= */
+.container-x {
+  width: 100%;
+  max-width: var(--container);
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+}
+@media (min-width: 768px) {
+  .container-x {
+    padding-inline: 2rem;
+  }
+}
+
+.section {
+  position: relative;
+  padding-block: clamp(5rem, 12vw, 11rem);
+}
+
+/* =========================================================
+   Typography helpers
+   ========================================================= */
+.display {
+  font-weight: 600;
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+}
+
+.text-gradient {
+  background: linear-gradient(
+    100deg,
+    var(--color-forest) 0%,
+    var(--color-green) 52%,
+    var(--color-moss) 95%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.text-gradient-2 {
+  background: linear-gradient(100deg, var(--color-green), var(--color-leaf));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.label {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+/* =========================================================
+   Surfaces & effects
+   ========================================================= */
+.glass {
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid var(--color-line);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 22px 60px -32px rgba(22, 46, 28, 0.5);
+}
+
+.glow-violet {
+  box-shadow: 0 0 90px -22px var(--color-green);
+}
+.glow-cyan {
+  box-shadow: 0 0 90px -22px var(--color-moss);
+}
+
+.grid-bg {
+  background-image: linear-gradient(
+      to right,
+      var(--color-stroke) 1px,
+      transparent 1px
+    ),
+    linear-gradient(to bottom, var(--color-stroke) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+
+.grid-mask {
+  -webkit-mask-image: radial-gradient(
+    ellipse 80% 60% at 50% 35%,
+    #000 0%,
+    transparent 75%
+  );
+  mask-image: radial-gradient(
+    ellipse 80% 60% at 50% 35%,
+    #000 0%,
+    transparent 75%
+  );
+}
+
+/* film grain overlay — kept very subtle on a light theme */
+.noise::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* =========================================================
+   Text reveal masks (RevealText)
+   ========================================================= */
+.reveal-word {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  padding-bottom: 0.12em;
+  margin-bottom: -0.12em;
+}
+.reveal-inner {
+  display: inline-block;
+  will-change: transform;
+}
+
+.text-gradient .reveal-inner {
+  background: linear-gradient(
+    100deg,
+    var(--color-forest) 0%,
+    var(--color-green) 55%,
+    var(--color-moss) 95%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.text-gradient-2 .reveal-inner {
+  background: linear-gradient(100deg, var(--color-green), var(--color-leaf));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* =========================================================
+   Scroll-driven word highlight (ScrollHighlightText)
+   ========================================================= */
+.hl-word {
+  display: inline;
+  color: var(--color-muted);
+  opacity: 0.22;
+}
+
+/* =========================================================
+   Buttons
+   ========================================================= */
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.95rem 1.5rem;
+  border-radius: 999px;
+  transition: transform 0.5s var(--ease-expo), background 0.3s ease,
+    color 0.3s ease, border-color 0.3s ease;
+}
+.btn-primary {
+  background: var(--color-green-dark);
+  color: #fff;
+}
+.btn-primary:hover {
+  background: var(--color-green);
+}
+.btn-ghost {
+  border: 1px solid var(--color-line);
+  color: var(--color-fg);
+}
+.btn-ghost:hover {
+  border-color: var(--color-green);
+  background: rgba(101, 173, 83, 0.1);
+  color: var(--color-forest);
+}
+
+/* =========================================================
+   Marquee
+   ========================================================= */
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 28s linear infinite;
+}
+
+@keyframes spin-slow {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+@keyframes scrollcue {
+  0% {
+    transform: translateY(-120%);
+  }
+  100% {
+    transform: translateY(320%);
+  }
+}
+
+.no-bar::-webkit-scrollbar {
+  display: none;
+}
+
+/* edge fade for logo lanes */
+.fade-x {
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 6%,
+    #000 94%,
+    transparent
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 6%,
+    #000 94%,
+    transparent
+  );
+}
+.pause-on-hover:hover {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+  .hl-word {
+    color: var(--color-fg);
+    opacity: 1;
+  }
+}
