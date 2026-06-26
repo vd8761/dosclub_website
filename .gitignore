@@ -42,3 +42,8 @@ next-env.d.ts
 
 # design source exports (large Figma assets — not used by the app)
 /DOS Web design/
+
+.idea/
+.next/
+AGENTS.md
+CLAUDE.md
