@@ -64,9 +64,14 @@ export default function PartnersShowcase({
       <div className="container-x">
         <div className="grid gap-8 lg:grid-cols-12 lg:items-end">
           <div className="lg:col-span-8">
-            <p className="label mb-6">/ 06 — Partners</p>
-            <h2 className="display text-[clamp(2rem,5vw,4rem)] leading-[1.02]">
-              <RevealText text="A network of" as="span" className="block" scrub />
+            <p className="label mb-6">/ 06 - Partners</p>
+            <h2 className="display text-4xl leading-[1.02] sm:text-5xl lg:text-6xl xl:text-7xl">
+              <RevealText
+                text="A network of"
+                as="span"
+                className="block"
+                scrub
+              />
               <RevealText
                 text="partners."
                 as="span"

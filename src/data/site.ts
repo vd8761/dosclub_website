@@ -1,6 +1,6 @@
 /**
  * Central content source for the Descience Open Source Club site.
- * Edit copy, events, team and partners here — components read from this file.
+ * Edit copy, events, team and partners here - components read from this file.
  */
 
 export const site = {
@@ -32,7 +32,7 @@ export const keywords = [
   "Ship together",
 ];
 
-/** What the club does — the four pillars */
+/** What the club does - the four pillars */
 export const pillars = [
   {
     no: "01",
@@ -56,7 +56,7 @@ export const pillars = [
   },
 ];
 
-/** Focus areas — horizontal scroll section */
+/** Focus areas - horizontal scroll section */
 export const domains = [
   {
     no: "01",
@@ -88,7 +88,7 @@ export const domains = [
   },
 ];
 
-/** Member journey — numbered process */
+/** Member journey - numbered process */
 export const journey = [
   {
     no: "01",
@@ -112,7 +112,7 @@ export const journey = [
   },
 ];
 
-/** Stats band — update with real numbers when available */
+/** Stats band - update with real numbers when available */
 export const stats = [
   { value: 500, suffix: "+", label: "Community members" },
   { value: 20, suffix: "+", label: "Workshops & webinars" },
@@ -124,7 +124,7 @@ export const events = [
   {
     title: "React JS Workshop",
     date: "07 May 2024",
-    time: "10:00 — 16:00 IST",
+    time: "10:00 - 16:00 IST",
     location: "PERI Institute of Technology",
     host: "Sivaraj Saminathan",
     tag: "Frontend",
@@ -132,7 +132,7 @@ export const events = [
   {
     title: "Cloud Computing Workshop",
     date: "07 May 2024",
-    time: "10:00 — 16:00 IST",
+    time: "10:00 - 16:00 IST",
     location: "Online",
     host: "G Pavithren",
     tag: "Cloud",
@@ -163,7 +163,7 @@ export const team = [
 export const faqs = [
   {
     q: "Why should I contribute to Descience open-source projects?",
-    a: "Contributing gives you the chance to learn and grow, work alongside professionals, build a solid portfolio and make real-world impact — all while using open source to create a better future.",
+    a: "Contributing gives you the chance to learn and grow, work alongside professionals, build a solid portfolio and make real-world impact - all while using open source to create a better future.",
   },
   {
     q: "I'm new to coding or open source. Can I still contribute?",
@@ -179,7 +179,7 @@ export const faqs = [
   },
   {
     q: "What if I need help while contributing?",
-    a: "Our community and mentors are one message away. Ask anytime — no question is too small, and someone will always help you move forward.",
+    a: "Our community and mentors are one message away. Ask anytime - no question is too small, and someone will always help you move forward.",
   },
   {
     q: "Can I use my contributions in my portfolio or resume?",

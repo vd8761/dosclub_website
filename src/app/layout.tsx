@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-import SmoothScroll from "@/components/SmoothScroll";
 import CustomCursor from "@/components/CustomCursor";
 
 const display = Space_Grotesk({
@@ -21,8 +20,8 @@ const mono = JetBrains_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL("https://descienceosclub.com"),
   title: {
-    default: "Descience Open Source Club — Build in the open",
-    template: "%s · Descience Open Source Club",
+    default: "Descience Open Source Club - Build in the open",
+    template: "%s | Descience Open Source Club",
   },
   description:
     "Descience Open Source Club is a student-driven community for collaborative learning in web development, cloud computing and open source. Learn, build and ship together.",
@@ -56,10 +55,10 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       className={`${display.variable} ${mono.variable} antialiased`}
     >
       <body className="noise min-h-screen">
-        <SmoothScroll />
         <CustomCursor />
         {children}
       </body>

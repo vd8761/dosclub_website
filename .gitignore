@@ -40,7 +40,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# design source exports (large Figma assets — not used by the app)
+# design source exports (large Figma assets - not used by the app)
 /DOS Web design/
 
 .idea/

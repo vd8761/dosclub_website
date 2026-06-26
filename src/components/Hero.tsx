@@ -60,7 +60,7 @@ export default function Hero() {
         stagger: 0.12,
       });
     },
-    { scope: root }
+    { scope: root },
   );
 
   return (
@@ -91,12 +91,17 @@ export default function Hero() {
       <AsciiField className="grid-mask absolute inset-0 -z-10" />
 
       <div data-hero-content className="container-x relative z-10">
-        <div data-hero-fade className="label mb-7 flex items-center gap-3">
-          <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-lime" />
-          Descience Open Source Club
+        <div data-hero-fade className="mb-9">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/logo.webp"
+            alt="Descience Open Source Club"
+            data-hero-logo
+            className="h-14 w-auto md:h-[4.5rem]"
+          />
         </div>
 
-        <h1 className="display max-w-[16ch] text-[clamp(2.8rem,9vw,8.5rem)]">
+        <h1 className="display max-w-[16ch] text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-[8.5rem]">
           <RevealText
             text="Learn. Build."
             as="span"
@@ -116,7 +121,7 @@ export default function Hero() {
           className="mt-8 max-w-xl text-base leading-relaxed text-muted md:text-lg"
         >
           A student-driven community where curious minds become confident
-          builders — through workshops, real projects and the open source world.
+          builders - through workshops, real projects and the open source world.
         </p>
 
         <div data-hero-fade className="mt-10 flex flex-wrap items-center gap-4">
@@ -126,7 +131,7 @@ export default function Hero() {
               className="btn btn-primary"
             >
               Join the club
-              <span aria-hidden>→</span>
+              <span aria-hidden>{"->"}</span>
             </button>
           </Magnetic>
           <Magnetic>

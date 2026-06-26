@@ -21,15 +21,15 @@ export default function Faq() {
         scrollTrigger: { trigger: "[data-faqlist]", start: "top 82%" },
       });
     },
-    { scope: root }
+    { scope: root },
   );
 
   return (
     <section id="faq" ref={root} className="section">
       <div className="container-x grid gap-12 lg:grid-cols-12">
         <div className="lg:col-span-4">
-          <p className="label mb-6">/ 07 — FAQ</p>
-          <h2 className="display text-[clamp(2rem,4.5vw,3.4rem)] leading-[1.05]">
+          <p className="label mb-6">/ 07 - FAQ</p>
+          <h2 className="display text-4xl leading-[1.05] sm:text-5xl lg:text-6xl">
             <RevealText text="Questions?" as="span" className="block" scrub />
             <RevealText
               text="Answered."
@@ -60,7 +60,9 @@ export default function Faq() {
                   className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left"
                   aria-expanded={isOpen}
                 >
-                  <span className="text-base font-medium md:text-lg">{f.q}</span>
+                  <span className="text-base font-medium md:text-lg">
+                    {f.q}
+                  </span>
                   <span
                     className={`relative grid h-6 w-6 shrink-0 place-items-center rounded-full border transition-colors duration-300 ${
                       isOpen

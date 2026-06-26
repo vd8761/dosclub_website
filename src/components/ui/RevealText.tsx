@@ -1,12 +1,14 @@
 "use client";
 
-import { createElement, ElementType, ReactNode, useRef } from "react";
+import { ReactNode, useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "@/lib/gsap";
 
+type TextTag = "span" | "p" | "h1" | "h2" | "h3";
+
 type Props = {
   text: string;
-  as?: ElementType;
+  as?: TextTag;
   className?: string;
   delay?: number;
   stagger?: number;
@@ -19,7 +21,7 @@ type Props = {
 
 /**
  * Masked reveal of text on scroll. Each unit (word or character) sits in an
- * overflow-hidden box and slides up from below — optionally scrubbed so it
+ * overflow-hidden box and slides up from below - optionally scrubbed so it
  * animates continuously as the user scrolls. Spaces are rendered as real text
  * nodes so lines wrap naturally between words.
  */
@@ -34,6 +36,9 @@ export default function RevealText({
   splitBy = "word",
 }: Props) {
   const ref = useRef<HTMLElement>(null);
+  const setNode = (node: HTMLElement | null) => {
+    ref.current = node;
+  };
 
   const units = splitBy === "char" ? Array.from(text) : text.split(" ");
   const step = stagger ?? (splitBy === "char" ? 0.025 : 0.045);
@@ -61,10 +66,10 @@ export default function RevealText({
                 scrub: true,
               }
             : { trigger: ref.current, start },
-        }
+        },
       );
     },
-    { scope: ref, dependencies: [text] }
+    { scope: ref, dependencies: [text] },
   );
 
   const children: ReactNode[] = [];
@@ -74,15 +79,45 @@ export default function RevealText({
       return;
     }
     children.push(
-      createElement(
-        "span",
-        { key: i, className: "reveal-word" },
-        createElement("span", { className: "reveal-inner" }, unit)
-      )
+      <span key={i} className="reveal-word">
+        <span className="reveal-inner">{unit}</span>
+      </span>,
     );
     // real space between words so the line can wrap
     if (splitBy === "word") children.push(" ");
   });
 
-  return createElement(as, { ref, className }, children);
+  switch (as) {
+    case "p":
+      return (
+        <p ref={setNode} className={className}>
+          {children}
+        </p>
+      );
+    case "h1":
+      return (
+        <h1 ref={setNode} className={className}>
+          {children}
+        </h1>
+      );
+    case "h2":
+      return (
+        <h2 ref={setNode} className={className}>
+          {children}
+        </h2>
+      );
+    case "h3":
+      return (
+        <h3 ref={setNode} className={className}>
+          {children}
+        </h3>
+      );
+    case "span":
+    default:
+      return (
+        <span ref={setNode} className={className}>
+          {children}
+        </span>
+      );
+  }
 }
