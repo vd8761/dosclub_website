@@ -115,7 +115,7 @@ export default function CodePane() {
         <span className="h-3 w-3 rounded-full bg-line" />
         <span className="h-3 w-3 rounded-full bg-line" />
         <span className="ml-2 font-mono text-[11px] tracking-[0.08em] text-muted">
-          ~/descience-os
+          ~/descience-os-club
         </span>
       </div>
 

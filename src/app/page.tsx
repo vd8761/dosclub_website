@@ -16,6 +16,16 @@ import Footer from "@/components/Footer";
 import LoopEnd from "@/components/LoopEnd";
 import { getEvents } from "@/lib/cms";
 
+/**
+ * Re-render the page every 5 minutes.
+ *
+ * The fetch in `getEvents` carries its own `revalidate`, but that only
+ * governs a SUCCESSFUL response. If the CMS is down at build time the
+ * request throws, we fall back to sample data, and nothing would ever
+ * schedule a retry. This makes the page itself revalidate regardless.
+ */
+export const revalidate = 300;
+
 export default async function Home() {
   const { events } = await getEvents();
 

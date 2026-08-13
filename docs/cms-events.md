@@ -11,12 +11,16 @@ events in `src/data/site.ts`, so nothing breaks before the CMS is wired up.
 
 ## 1. Connection
 
-In the CMS admin, for this website's **Site (workspace)**:
+In the CMS admin, with this website's **Site** selected in the switcher:
 
-1. **Settings → API keys → Create key**
-2. Scopes: **`content.read`** (add **`media.read`** if event covers are stored
+1. Sidebar → **API keys** (its own top-level item, *not* under Settings) →
+   **Create key**
+2. Type: **Secret**. The site fetches from the Next.js server, never the
+   browser, so a publishable key — which is origin-restricted and limited to a
+   reduced scope set — is the wrong choice here.
+3. Scopes: **`content.read`** (add **`media.read`** if event covers are stored
    in CMS media).
-3. Copy the key into the website's `.env`:
+4. Copy the key into the website's `.env` — it is shown once:
 
 ```bash
 CMS_API_URL=https://your-cms-host        # no trailing slash; local dev: http://localhost:4000
@@ -41,7 +45,18 @@ publishing in the CMS shows up on the site within ~5 minutes without a redeploy.
 
 ## 2. Content type
 
-**Name:** Events · **API ID:** `event` · **URL field:** `slug`
+Sidebar → **Settings → Content model → Create content type**.
+
+**Name it `Event`, singular.** The API ID is derived from the name and is
+**permanent** — it cannot be edited afterwards. `Event` gives `event`, which is
+what the site requests; naming it `Events` would give `events`, and you would
+then have to set `CMS_EVENT_TYPE=events` to match.
+
+The same rule applies to every field below: the API ID is derived from the
+field name by lowercasing and replacing each run of non-alphanumeric characters
+with `_`. So type the **Name** column exactly as written and you will get the
+API ID the site expects (`Start at` → `start_at`, `Register URL` →
+`register_url`).
 
 Only `title` and `start_at` are truly required — every other field degrades
 gracefully, and the popup simply omits sections it has no data for.
