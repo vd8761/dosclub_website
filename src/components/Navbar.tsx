@@ -8,33 +8,55 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [active, setActive] = useState(-1);
-  const [heroLogoVisible, setHeroLogoVisible] = useState(true);
+  // The bar stays out of the way over the hero and drops in once the
+  // landing view has been scrolled past.
+  const [pastHero, setPastHero] = useState(false);
   const barRef = useRef<HTMLSpanElement>(null);
 
-  // The navbar logo only appears once the hero logo leaves the viewport.
+  // Scroll state + progress branch line.
+  // Reading scrollHeight/innerHeight inside the scroll handler forces a
+  // layout on every event; cache it and only recompute on resize. The
+  // write itself is batched into one rAF so bursts of scroll events
+  // collapse into a single style change per frame.
   useEffect(() => {
-    const heroLogo = document.querySelector("[data-hero-logo]");
-    if (!heroLogo) return;
-    const obs = new IntersectionObserver(
-      ([entry]) => setHeroLogoVisible(entry.isIntersecting),
-      { threshold: 0 },
-    );
-    obs.observe(heroLogo);
-    return () => obs.disconnect();
-  }, []);
+    let docH = 1;
+    let heroH = 1;
+    let ticking = false;
 
-  // Scroll state + progress branch line
-  useEffect(() => {
-    const onScroll = () => {
+    const measure = () => {
+      docH = Math.max(
+        1,
+        document.documentElement.scrollHeight - window.innerHeight,
+      );
+      heroH =
+        document.getElementById("top")?.offsetHeight || window.innerHeight;
+    };
+
+    const update = () => {
+      ticking = false;
       const st = window.scrollY;
       setScrolled(st > 30);
-      const docH = document.documentElement.scrollHeight - window.innerHeight;
-      const p = docH > 0 ? st / docH : 0;
-      if (barRef.current) barRef.current.style.transform = `scaleX(${p})`;
+      // Reveal once most of the landing view is behind us.
+      setPastHero(st > heroH * 0.72);
+      if (barRef.current) {
+        barRef.current.style.transform = `scaleX(${Math.min(st / docH, 1)})`;
+      }
     };
-    onScroll();
+
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(update);
+    };
+
+    measure();
+    update();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    window.addEventListener("resize", measure);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", measure);
+    };
   }, []);
 
   // Active section = current "commit" on the timeline
@@ -67,11 +89,17 @@ export default function Navbar() {
   };
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50">
+    <header
+      className={`fixed inset-x-0 top-0 z-50 transition-[transform,opacity] duration-500 ${
+        pastHero || open
+          ? "translate-y-0 opacity-100"
+          : "pointer-events-none -translate-y-full opacity-0"
+      }`}
+    >
       <div
         className={`relative border-b transition-colors duration-500 ${
           scrolled
-            ? "border-line bg-ink/80 backdrop-blur-xl"
+            ? "border-line bg-ink/90 backdrop-blur-sm"
             : "border-transparent"
         }`}
       >
@@ -80,9 +108,7 @@ export default function Navbar() {
             onClick={() => go("#top")}
             aria-label="Home"
             data-cursor
-            className={`justify-self-start transition-opacity duration-500 ${
-              heroLogoVisible ? "pointer-events-none opacity-0" : "opacity-100"
-            }`}
+            className="justify-self-start"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -114,8 +140,8 @@ export default function Navbar() {
                     <span
                       className={`relative z-10 h-[9px] w-[9px] rounded-full border transition-all duration-300 ${
                         isActive
-                          ? "scale-110 border-green bg-green"
-                          : "border-line bg-ink group-hover:border-green"
+                          ? "scale-110 border-primary bg-primary"
+                          : "border-line bg-ink group-hover:border-primary"
                       }`}
                     />
                   </button>
@@ -127,11 +153,11 @@ export default function Navbar() {
           {/* Live CTA */}
           <button
             onClick={() => go("#join")}
-            className="hidden items-center gap-2.5 justify-self-end rounded-full bg-green-dark px-5 py-2.5 text-white transition-colors hover:bg-green md:inline-flex"
+            className="hidden items-center gap-2 justify-self-end rounded-full bg-primary-dark px-6 py-2 text-white transition-colors hover:bg-primary md:inline-flex"
           >
             <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-leaf opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-leaf" />
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary-soft opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-primary-soft" />
             </span>
             <span className="font-mono text-[11px] uppercase tracking-[0.14em]">
               Join the club
@@ -141,17 +167,17 @@ export default function Navbar() {
           {/* Mobile burger */}
           <button
             onClick={() => setOpen((v) => !v)}
-            className="flex h-10 w-10 flex-col items-center justify-center gap-1.5 justify-self-end md:hidden"
+            className="flex h-10 w-10 flex-col items-center justify-center gap-2 justify-self-end md:hidden"
             aria-label="Menu"
           >
             <span
               className={`h-px w-6 bg-fg transition-transform duration-300 ${
-                open ? "translate-y-[3.5px] rotate-45" : ""
+                open ? "translate-y-[4.5px] rotate-45" : ""
               }`}
             />
             <span
               className={`h-px w-6 bg-fg transition-transform duration-300 ${
-                open ? "-translate-y-[3.5px] -rotate-45" : ""
+                open ? "-translate-y-[4.5px] -rotate-45" : ""
               }`}
             />
           </button>
@@ -160,8 +186,8 @@ export default function Navbar() {
         {/* Scroll progress branch line */}
         <span
           ref={barRef}
-          className="absolute bottom-0 left-0 h-[2px] w-full origin-left bg-gradient-to-r from-green to-leaf"
-          style={{ transform: "scaleX(0)" }}
+          className="absolute bottom-0 left-0 h-[2px] w-full origin-left bg-gradient-to-r from-accent to-primary"
+          style={{ transform: "scaleX(0)", willChange: "transform" }}
         />
       </div>
 
@@ -173,7 +199,7 @@ export default function Navbar() {
             : "pointer-events-none opacity-0"
         }`}
       >
-        <nav className="container-x flex h-full flex-col justify-center gap-1">
+        <nav className="container-x flex h-full flex-col justify-center gap-2">
           {nav.map((item, i) => (
             <button
               key={item.href}
@@ -183,7 +209,7 @@ export default function Navbar() {
                 open ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
               }`}
             >
-              <span className="font-mono text-xs text-green-dark">
+              <span className="font-mono text-xs text-primary-dark">
                 0{i + 1}
               </span>
               {item.label}

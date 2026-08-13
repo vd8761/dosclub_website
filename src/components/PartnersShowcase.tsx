@@ -21,8 +21,8 @@ function LogoTile({
 }) {
   return (
     <div
-      className={`group flex items-center justify-center rounded-2xl border bg-surface p-6 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_22px_60px_-32px_rgba(22,46,28,0.5)] ${
-        featured ? "border-green/30" : "border-line hover:border-green/40"
+      className={`group flex items-center justify-center rounded-2xl border bg-surface p-6 transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_22px_60px_-32px_rgba(12,51,70,0.45)] ${
+        featured ? "border-primary/30" : "border-line hover:border-primary/40"
       } ${className}`}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -43,7 +43,7 @@ function GroupHeader({ label, count }: { label: string; count?: number }) {
     <div className="mb-8 flex items-center gap-4">
       <p className="label whitespace-nowrap">{label}</p>
       {count !== undefined && (
-        <span className="font-mono text-xs text-green-dark">
+        <span className="font-mono text-xs text-primary-dark">
           [{String(count).padStart(2, "0")}]
         </span>
       )}
@@ -60,7 +60,10 @@ export default function PartnersShowcase({
   industry: string[];
 }) {
   return (
-    <section id="partners" className="section border-t border-line">
+    <section
+      id="partners"
+      className="section section-none-b border-t border-line"
+    >
       <div className="container-x">
         <div className="grid gap-8 lg:grid-cols-12 lg:items-end">
           <div className="lg:col-span-8">
@@ -88,7 +91,7 @@ export default function PartnersShowcase({
 
         {/* Institution partners */}
         {institutions.length > 0 && (
-          <div className="mt-20">
+          <div className="mt-12">
             <GroupHeader
               label="Institution partners"
               count={institutions.length}
@@ -103,7 +106,7 @@ export default function PartnersShowcase({
 
         {/* Industry partner */}
         {industry.length > 0 && (
-          <div className="mt-16">
+          <div className="mt-12">
             <GroupHeader
               label="Industry partner"
               count={industry.length > 1 ? industry.length : undefined}

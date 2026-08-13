@@ -61,6 +61,15 @@ export default function RootLayout({
       <body className="noise min-h-screen">
         <CustomCursor />
         {children}
+        {/* Wipe used by LoopEnd to cover the scroll reset. It lives here,
+     outside #smooth-content, because `position: fixed` inside a
+     transformed element resolves against that element, not the
+     viewport. */}
+        <div
+          id="loop-veil"
+          aria-hidden
+          className="pointer-events-none fixed inset-0 z-[80] bg-deep opacity-0"
+        />
       </body>
     </html>
   );

@@ -25,7 +25,7 @@ export default function Faq() {
   );
 
   return (
-    <section id="faq" ref={root} className="section">
+    <section id="faq" ref={root} className="section section-flush-t">
       <div className="container-x grid gap-12 lg:grid-cols-12">
         <div className="lg:col-span-4">
           <p className="label mb-6">/ 07 - FAQ</p>
@@ -45,7 +45,7 @@ export default function Faq() {
 
         <div
           data-faqlist
-          className="flex flex-col gap-3 lg:col-span-8 lg:col-start-5"
+          className="flex flex-col gap-4 lg:col-span-8 lg:col-start-5"
         >
           {faqs.map((f, i) => {
             const isOpen = open === i;
@@ -57,7 +57,7 @@ export default function Faq() {
               >
                 <button
                   onClick={() => setOpen(isOpen ? null : i)}
-                  className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left"
+                  className="flex w-full items-center justify-between gap-4 px-6 py-6 text-left"
                   aria-expanded={isOpen}
                 >
                   <span className="text-base font-medium md:text-lg">
@@ -66,8 +66,8 @@ export default function Faq() {
                   <span
                     className={`relative grid h-6 w-6 shrink-0 place-items-center rounded-full border transition-colors duration-300 ${
                       isOpen
-                        ? "border-transparent bg-green-dark text-white"
-                        : "border-line text-green-dark"
+                        ? "border-transparent bg-primary-dark text-white"
+                        : "border-line text-primary-dark"
                     }`}
                   >
                     <span className="absolute h-px w-3 bg-current" />

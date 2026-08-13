@@ -24,7 +24,7 @@ export default function About() {
   );
 
   return (
-    <section id="about" ref={root} className="section">
+    <section id="about" ref={root} className="section section-flush-b">
       <div className="container-x">
         <div className="grid gap-12 lg:grid-cols-12 lg:gap-16">
           <div className="lg:col-span-7">
@@ -45,8 +45,8 @@ export default function About() {
               continuous feedback. No gatekeeping - just people helping people
               ship better work, in the open.
             </p>
-            <div className="flex items-center gap-3 text-sm text-muted">
-              <span className="h-px w-12 bg-violet" />
+            <div className="flex items-center gap-4 text-sm text-muted">
+              <span className="h-px w-12 bg-primary" />
               Powered by Touchmark DesScience
             </div>
           </div>
@@ -54,7 +54,7 @@ export default function About() {
 
         <div
           data-pillars
-          className="mt-20 grid gap-px overflow-hidden rounded-3xl border border-line bg-line sm:grid-cols-2 lg:grid-cols-4"
+          className="mt-16 grid gap-px overflow-hidden rounded-3xl border border-line bg-line sm:grid-cols-2 lg:grid-cols-4"
         >
           {pillars.map((p) => (
             <div
@@ -64,10 +64,10 @@ export default function About() {
             >
               <span className="label">{p.no}</span>
               <h3 className="display mt-8 text-xl font-semibold">{p.title}</h3>
-              <p className="mt-3 text-sm leading-relaxed text-muted">
+              <p className="mt-4 text-sm leading-relaxed text-muted">
                 {p.body}
               </p>
-              <span className="absolute bottom-0 left-0 h-px w-0 bg-gradient-to-r from-violet to-cyan transition-all duration-500 group-hover:w-full" />
+              <span className="absolute bottom-0 left-0 h-px w-0 bg-gradient-to-r from-primary to-accent transition-all duration-500 group-hover:w-full" />
             </div>
           ))}
         </div>

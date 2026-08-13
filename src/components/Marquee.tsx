@@ -5,6 +5,10 @@ import { useGSAP } from "@gsap/react";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 import { keywords } from "@/data/site";
 
+/** Code punctuation used between keywords, cycled so it never repeats
+ * twice in a row. */
+const SEPARATORS = ["</>", "{ }", "=>", "&&", "[ ]", "::", "||", "/*"];
+
 export default function Marquee() {
   const root = useRef<HTMLDivElement>(null);
   const track = useRef<HTMLDivElement>(null);
@@ -41,7 +45,7 @@ export default function Marquee() {
   return (
     <div
       ref={root}
-      className="relative overflow-hidden border-y border-line bg-ink-soft py-5"
+      className="relative overflow-hidden border-y border-line bg-ink-soft py-6"
     >
       <div ref={track} className="marquee-track">
         {row.map((word, i) => (
@@ -52,8 +56,8 @@ export default function Marquee() {
             <span className={i % 2 ? "text-gradient-2" : "text-fg"}>
               {word}
             </span>
-            <span className="text-green" aria-hidden>
-              *
+            <span className="font-mono text-primary opacity-70" aria-hidden>
+              {SEPARATORS[i % SEPARATORS.length]}
             </span>
           </span>
         ))}

@@ -2,32 +2,34 @@
 
 /* =========================================================
  DESCIENCE OPEN SOURCE CLUB - design tokens
- Light theme - green family built around the logo (#65AD53)
+
+ Palette: primary #4CAF50 (green), accent #1593C3 (blue).
+
+ SPACING RULE: every spacing value is a multiple of 8px.
+ Tailwind's numeric scale is 4px-based, so only EVEN steps are
+ allowed (p-2=8, p-4=16, p-6=24, p-8=32 ...). Never use odd or
+ fractional steps (p-1, p-3, gap-2.5, mt-5) - round to the
+ nearest even step instead.
  ========================================================= */
 @theme {
-  /* Surfaces (light) */
-  --color-ink: #f5f8ef; /* page background */
-  --color-ink-soft: #eef3e5; /* alternating sections */
-  --color-ink-2: #e6eedb; /* subtle hover surface */
+  /* Brand */
+  --color-primary: #4caf50;
+  --color-primary-dark: #2f8a36; /* readable on light surfaces */
+  --color-primary-soft: #8bd08e;
+  --color-accent: #1593c3;
+  --color-accent-dark: #0d6b90;
+  --color-accent-soft: #5cbde3;
+  --color-deep: #0c3346; /* deep ground for inverted sections */
+
+  /* Surfaces (light, faintly cooled to sit under both brand hues) */
+  --color-ink: #f4f7f9; /* page background */
+  --color-ink-soft: #eaeff3; /* alternating sections */
+  --color-ink-2: #dfe7ed; /* subtle hover surface */
   --color-surface: #ffffff; /* cards */
-  --color-fg: #16261a; /* near-black green text */
-  --color-muted: #5f6f5b; /* muted text */
-  --color-line: rgba(22, 46, 28, 0.12);
-  --color-stroke: rgba(31, 81, 48, 0.12); /* outline ghost text + grid */
-
-  /* Green family */
-  --color-green: #65ad53; /* brand / logo */
-  --color-green-dark: #3c7d2c; /* readable accent on light */
-  --color-forest: #1f5130; /* deep */
-  --color-moss: #2f9e7a; /* teal-green secondary */
-  --color-leaf: #7cb928; /* lime / chartreuse */
-
-  /* Legacy aliases -> mapped onto the green family so existing
- utility classes keep working after the recolor. */
-  --color-violet: var(--color-green);
-  --color-cyan: var(--color-moss);
-  --color-lime: var(--color-leaf);
-  --color-pink: var(--color-forest);
+  --color-fg: #10222b; /* near-black text */
+  --color-muted: #5b6f79; /* muted text */
+  --color-line: rgba(16, 34, 43, 0.12);
+  --color-stroke: rgba(12, 51, 70, 0.12); /* outline ghost text + grid */
 
   --font-display:
     var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
@@ -38,6 +40,13 @@
 
 :root {
   --container: 1320px;
+  /* Text used on top of --color-deep sections */
+  --color-on-deep: #e8f1f5;
+  --color-on-deep-muted: #93aab5;
+
+  /* Brand colours as raw channels, for rgb(... / <alpha>) composition */
+  --rgb-primary: 76 175 80; /* #4CAF50 */
+  --rgb-accent: 21 147 195; /* #1593C3 */
 }
 
 * {
@@ -58,22 +67,22 @@ body {
 }
 
 ::selection {
-  background: var(--color-green);
+  background: var(--color-primary);
   color: #fff;
 }
 
 ::-webkit-scrollbar {
-  width: 10px;
+  width: 8px;
 }
 ::-webkit-scrollbar-track {
   background: var(--color-ink-soft);
 }
 ::-webkit-scrollbar-thumb {
-  background: #b8ccaa;
+  background: #b3c4cd;
   border-radius: 999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-green);
+  background: var(--color-accent);
 }
 
 a {
@@ -88,17 +97,46 @@ a {
   width: 100%;
   max-width: var(--container);
   margin-inline: auto;
-  padding-inline: 1.25rem;
+  padding-inline: 24px;
 }
 @media (min-width: 768px) {
   .container-x {
-    padding-inline: 2rem;
+    padding-inline: 32px;
   }
 }
 
+/* Vertical rhythm. Kept deliberately tight - the sections carry a lot of
+ large type, which already supplies most of the breathing room. */
 .section {
   position: relative;
-  padding-block: clamp(5rem, 12vw, 11rem);
+  /* 56px -> 112px, both multiples of 8 */
+  padding-block: clamp(56px, 7vw, 112px);
+}
+
+/* For sections that sit on their own background colour and so read as
+ separate without needing as much air. */
+.section-tight {
+  position: relative;
+  padding-block: clamp(48px, 5vw, 80px);
+}
+
+/* Modifiers. Declared after .section so they win on source order - the
+ Tailwind padding utilities live in the `utilities` layer and would lose
+ to these unlayered rules. */
+.section-flush-b {
+  padding-bottom: clamp(40px, 4vw, 64px);
+}
+.section-flush-t {
+  padding-top: clamp(40px, 4vw, 64px);
+}
+
+/* Collapse a boundary entirely, so two sections run straight into each
+ other and only the neighbour's padding separates them. */
+.section-none-b {
+  padding-bottom: 0;
+}
+.section-none-t {
+  padding-top: 0;
 }
 
 /* =========================================================
@@ -113,9 +151,9 @@ a {
 .text-gradient {
   background: linear-gradient(
     100deg,
-    var(--color-forest) 0%,
-    var(--color-green) 52%,
-    var(--color-moss) 95%
+    var(--color-primary-dark) 0%,
+    var(--color-primary) 48%,
+    var(--color-accent) 95%
   );
   -webkit-background-clip: text;
   background-clip: text;
@@ -123,7 +161,11 @@ a {
 }
 
 .text-gradient-2 {
-  background: linear-gradient(100deg, var(--color-green), var(--color-leaf));
+  background: linear-gradient(
+    100deg,
+    var(--color-accent),
+    var(--color-primary)
+  );
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -140,18 +182,22 @@ a {
 /* =========================================================
  Surfaces & effects
  ========================================================= */
+/* Card surface. Deliberately NOT backdrop-filter: this class is used on
+ many cards at once, and each blurred backdrop forces the browser to
+ re-rasterise what is behind it on every scrolled frame. The sections
+ behind are flat colour, so an opaque tint is visually identical and
+ costs nothing. */
 .glass {
-  background: rgba(255, 255, 255, 0.72);
+  background: rgba(255, 255, 255, 0.86);
   border: 1px solid var(--color-line);
-  backdrop-filter: blur(14px);
-  box-shadow: 0 22px 60px -32px rgba(22, 46, 28, 0.5);
+  box-shadow: 0 16px 48px -32px rgba(12, 51, 70, 0.45);
 }
 
 .glow-violet {
-  box-shadow: 0 0 90px -22px var(--color-green);
+  box-shadow: 0 0 88px -24px var(--color-primary);
 }
 .glow-cyan {
-  box-shadow: 0 0 90px -22px var(--color-moss);
+  box-shadow: 0 0 88px -24px var(--color-accent);
 }
 
 .grid-bg {
@@ -159,6 +205,22 @@ a {
     linear-gradient(to right, var(--color-stroke) 1px, transparent 1px),
     linear-gradient(to bottom, var(--color-stroke) 1px, transparent 1px);
   background-size: 64px 64px;
+}
+
+/* Weighted to the right of the hero, where the code pane sits, so the
+ grid and the ASCII field occupy different parts of the frame instead
+ of muddying each other in the middle. */
+.grid-mask-wide {
+  -webkit-mask-image: radial-gradient(
+    ellipse 90% 80% at 72% 50%,
+    #000 0%,
+    transparent 78%
+  );
+  mask-image: radial-gradient(
+    ellipse 90% 80% at 72% 50%,
+    #000 0%,
+    transparent 78%
+  );
 }
 
 .grid-mask {
@@ -182,7 +244,121 @@ a {
   z-index: 60;
   pointer-events: none;
   opacity: 0.025;
+  /* own compositor layer so the grain never repaints during scroll */
+  transform: translateZ(0);
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* =========================================================
+ Ambient "blobs"
+
+ These used to be solid radial circles pushed through
+ `filter: blur(120px)`. On a 36rem element that makes the browser
+ rasterise a ~1300px surface and run a huge gaussian on it EVERY
+ frame the blob drifts - which it does forever, via GSAP. It was
+ the single biggest source of scroll jank.
+
+ A radial-gradient with a soft falloff is visually identical and
+ is drawn by the compositor for free.
+
+ Set --blob-rgb to one of the --rgb-* channel triples in :root.
+ (Channels rather than color-mix(): the minifier cannot fold a
+ color-mix() whose operand is a custom property, and silently
+ flattens the falloff into hard stops.)
+ ========================================================= */
+.blob {
+  position: absolute;
+  border-radius: 999px;
+  pointer-events: none;
+  will-change: transform;
+  background: radial-gradient(
+    closest-side,
+    rgb(var(--blob-rgb, var(--rgb-primary)) / 0.9) 0%,
+    rgb(var(--blob-rgb, var(--rgb-primary)) / 0.5) 38%,
+    rgb(var(--blob-rgb, var(--rgb-primary)) / 0.18) 64%,
+    rgb(var(--blob-rgb, var(--rgb-primary)) / 0) 100%
+  );
+}
+
+/* =========================================================
+ Rich text coming from the CMS (event descriptions)
+
+ The CMS returns HTML, so these elements never carry Tailwind
+ classes and need styling by tag.
+ ========================================================= */
+.prose-event > * + * {
+  margin-top: 16px;
+}
+.prose-event p,
+.prose-event li {
+  line-height: 1.7;
+}
+.prose-event strong {
+  color: var(--color-fg);
+  font-weight: 600;
+}
+.prose-event a {
+  color: var(--color-primary-dark);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.prose-event h2,
+.prose-event h3,
+.prose-event h4 {
+  color: var(--color-fg);
+  font-family: var(--font-display);
+  font-weight: 600;
+  margin-top: 24px;
+}
+.prose-event h2 {
+  font-size: 1.25rem;
+}
+.prose-event h3,
+.prose-event h4 {
+  font-size: 1.05rem;
+}
+.prose-event ul,
+.prose-event ol {
+  padding-left: 24px;
+}
+.prose-event ul {
+  list-style: disc;
+}
+.prose-event ol {
+  list-style: decimal;
+}
+.prose-event code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  background: var(--color-ink-2);
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+.prose-event pre {
+  background: var(--color-ink-2);
+  padding: 16px;
+  border-radius: 12px;
+  overflow-x: auto;
+}
+.prose-event blockquote {
+  border-left: 2px solid var(--color-line);
+  padding-left: 16px;
+  color: var(--color-muted);
+}
+.prose-event img {
+  max-width: 100%;
+  border-radius: 12px;
+}
+
+/* =========================================================
+ Scroll performance
+
+ ScrollSmoother transforms #smooth-content on every frame. Giving
+ it (and only it) a compositor layer keeps the browser from
+ re-laying-out the page as it moves.
+ ========================================================= */
+#smooth-content {
+  will-change: transform;
 }
 
 /* =========================================================
@@ -197,22 +373,29 @@ a {
 }
 .reveal-inner {
   display: inline-block;
-  will-change: transform;
+  /* No permanent `will-change` here: there are hundreds of these on the
+ page and each one would hold its own compositor layer for the whole
+ session. GSAP promotes the element for the duration of the tween and
+ releases it afterwards, which is what we actually want. */
 }
 
 .text-gradient .reveal-inner {
   background: linear-gradient(
     100deg,
-    var(--color-forest) 0%,
-    var(--color-green) 55%,
-    var(--color-moss) 95%
+    var(--color-primary-dark) 0%,
+    var(--color-primary) 50%,
+    var(--color-accent) 95%
   );
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
 .text-gradient-2 .reveal-inner {
-  background: linear-gradient(100deg, var(--color-green), var(--color-leaf));
+  background: linear-gradient(
+    100deg,
+    var(--color-accent),
+    var(--color-primary)
+  );
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -223,7 +406,7 @@ a {
  ========================================================= */
 .hl-word {
   display: inline;
-  color: var(--color-muted);
+  color: var(--color-fg);
   opacity: 0.22;
 }
 
@@ -234,12 +417,12 @@ a {
   position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 8px;
   font-family: var(--font-mono);
   font-size: 0.8rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  padding: 0.95rem 1.5rem;
+  padding: 16px 24px;
   border-radius: 999px;
   transition:
     transform 0.5s var(--ease-expo),
@@ -248,20 +431,20 @@ a {
     border-color 0.3s ease;
 }
 .btn-primary {
-  background: var(--color-green-dark);
+  background: var(--color-primary-dark);
   color: #fff;
 }
 .btn-primary:hover {
-  background: var(--color-green);
+  background: var(--color-primary);
 }
 .btn-ghost {
   border: 1px solid var(--color-line);
   color: var(--color-fg);
 }
 .btn-ghost:hover {
-  border-color: var(--color-green);
-  background: rgba(101, 173, 83, 0.1);
-  color: var(--color-forest);
+  border-color: var(--color-accent);
+  background: rgba(21, 147, 195, 0.1);
+  color: var(--color-accent-dark);
 }
 
 /* =========================================================
@@ -335,7 +518,6 @@ a {
     transition-duration: 0.001ms !important;
   }
   .hl-word {
-    color: var(--color-fg);
     opacity: 1;
   }
 }

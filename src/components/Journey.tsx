@@ -58,7 +58,11 @@ export default function Journey() {
   );
 
   return (
-    <section id="journey" ref={root} className="section overflow-hidden">
+    <section
+      id="journey"
+      ref={root}
+      className="section section-none-b overflow-hidden"
+    >
       <div className="container-x">
         <div className="grid gap-12 lg:grid-cols-12">
           <div className="lg:col-span-4 lg:sticky lg:top-28 lg:h-fit">
@@ -78,7 +82,7 @@ export default function Journey() {
             <span className="absolute left-6 top-6 h-[calc(100%-3rem)] w-px bg-line" />
             <span
               data-line-fill
-              className="absolute left-6 top-6 h-[calc(100%-3rem)] w-px bg-gradient-to-b from-forest via-green to-leaf"
+              className="absolute left-6 top-6 h-[calc(100%-3rem)] w-px bg-gradient-to-b from-accent via-primary to-primary-soft"
             />
 
             <div className="flex flex-col gap-16">
@@ -104,7 +108,7 @@ export default function Journey() {
                         cx="24"
                         cy="24"
                         r="22"
-                        fill="var(--color-green)"
+                        fill="var(--color-primary)"
                         opacity="0.14"
                       />
                       <circle
@@ -113,14 +117,14 @@ export default function Journey() {
                         cy="24"
                         r="22"
                         fill="none"
-                        stroke="var(--color-green)"
+                        stroke="var(--color-primary)"
                         strokeWidth="1.6"
                       />
                       <path
                         data-check
                         d="M15 24.5 L21.5 31 L33 17.5"
                         fill="none"
-                        stroke="var(--color-green-dark)"
+                        stroke="var(--color-primary-dark)"
                         strokeWidth="2.4"
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -129,7 +133,7 @@ export default function Journey() {
                   </div>
 
                   {/* content + parallax ghost number */}
-                  <div className="relative flex-1 pt-1.5">
+                  <div className="relative flex-1 pt-2">
                     <span
                       data-speed="0.88"
                       aria-hidden
@@ -142,7 +146,7 @@ export default function Journey() {
                       <h3 className="display text-2xl font-semibold md:text-3xl">
                         {s.title}
                       </h3>
-                      <p className="mt-3 max-w-md text-muted">{s.body}</p>
+                      <p className="mt-4 max-w-md text-muted">{s.body}</p>
                     </div>
                   </div>
                 </div>

@@ -41,7 +41,7 @@ export default function Stats() {
             key={s.label}
             data-counter
             data-value={s.value}
-            className="flex flex-col gap-2 py-12 pr-6 lg:py-16"
+            className="flex flex-col gap-2 py-10 pr-6 lg:py-12"
           >
             <div className="display text-5xl font-semibold md:text-6xl">
               <span className="num text-gradient">0</span>

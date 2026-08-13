@@ -1,20 +1,18 @@
+import { CSSProperties } from "react";
 import ScrollHighlightText from "./ui/ScrollHighlightText";
 import MorphAccent from "./MorphAccent";
 
 export default function Manifesto() {
   return (
-    <section className="section relative overflow-hidden bg-forest text-[#eef3e5]">
+    <section className="section-tight relative overflow-hidden bg-deep text-[color:var(--color-on-deep)]">
       <MorphAccent className="pointer-events-none absolute -right-8 top-12 h-72 w-72 opacity-60 md:h-[26rem] md:w-[26rem]" />
       <div
-        className="pointer-events-none absolute -left-20 bottom-0 h-80 w-80 rounded-full opacity-40 blur-[120px]"
-        style={{
-          background:
-            "radial-gradient(circle, var(--color-green), transparent 65%)",
-        }}
+        className="blob -left-20 bottom-0 h-80 w-80 opacity-40"
+        style={{ "--blob-rgb": "var(--rgb-primary)" } as CSSProperties}
       />
 
       <div className="container-x relative">
-        <p className="label mb-10" style={{ color: "rgba(238,243,229,0.55)" }}>
+        <p className="label mb-8" style={{ color: "var(--color-on-deep-muted)" }}>
           / Manifesto
         </p>
         <ScrollHighlightText

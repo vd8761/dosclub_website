@@ -13,8 +13,12 @@ import Partners from "@/components/Partners";
 import Faq from "@/components/Faq";
 import Join from "@/components/Join";
 import Footer from "@/components/Footer";
+import LoopEnd from "@/components/LoopEnd";
+import { getEvents } from "@/lib/cms";
 
-export default function Home() {
+export default async function Home() {
+  const { events } = await getEvents();
+
   return (
     <>
       <Navbar />
@@ -27,13 +31,14 @@ export default function Home() {
           <Manifesto />
           <Domains />
           <Journey />
-          <Events />
+          <Events events={events} />
           <Team />
           <Partners />
           <Faq />
           <Join />
         </main>
         <Footer />
+        <LoopEnd />
       </SmoothScroll>
     </>
   );

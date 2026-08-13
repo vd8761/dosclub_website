@@ -39,53 +39,37 @@ export default function ScrollHighlightText({
         "(prefers-reduced-motion: reduce)",
       ).matches;
 
-      if (dark) {
-        if (reduce) {
-          gsap.set(wordEls, { opacity: 1 });
-          return;
-        }
-        gsap.fromTo(
-          wordEls,
-          { opacity: 0.22 },
-          {
-            opacity: 1,
-            ease: "none",
-            stagger: 0.5,
-            scrollTrigger: {
-              trigger: ref.current,
-              start: "top 78%",
-              end: "bottom 58%",
-              scrub: true,
-            },
-          },
-        );
+      if (reduce) {
+        gsap.set(wordEls, { opacity: 1 });
         return;
       }
 
-      if (reduce) return;
-      const lit =
-        getComputedStyle(document.documentElement)
-          .getPropertyValue("--color-fg")
-          .trim() || "#16261a";
-      gsap.to(wordEls, {
-        color: lit,
-        opacity: 1,
-        ease: "none",
-        stagger: 0.5,
-        scrollTrigger: {
-          trigger: ref.current,
-          start: "top 78%",
-          end: "bottom 58%",
-          scrub: true,
+      // Animate opacity ONLY. Tweening `color` per word makes the browser
+      // repaint every word on every scrub frame; opacity is handled by the
+      // compositor. The words already carry their final colour, so fading
+      // them in from 0.22 looks the same and costs a fraction as much.
+      gsap.fromTo(
+        wordEls,
+        { opacity: 0.22 },
+        {
+          opacity: 1,
+          ease: "none",
+          stagger: 0.5,
+          scrollTrigger: {
+            trigger: ref.current,
+            start: "top 78%",
+            end: "bottom 58%",
+            scrub: true,
+          },
         },
-      });
+      );
     },
     { scope: ref, dependencies: [text] },
   );
 
-  const wordStyle: CSSProperties | undefined = dark
-    ? { color: "#eef3e5", opacity: 0.22 }
-    : undefined;
+  const wordStyle: CSSProperties = dark
+    ? { color: "var(--color-on-deep)", opacity: 0.22 }
+    : { color: "var(--color-fg)", opacity: 0.22 };
 
   const children: ReactNode = words.map((word, i) => (
     <span key={i} className="hl-word" style={wordStyle}>
