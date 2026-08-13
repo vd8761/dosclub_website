@@ -119,7 +119,7 @@ gracefully, and the popup simply omits sections it has no data for.
 
 ```json
 [
-  { "name": "Sivaraj Saminathan", "title": "Programmer Analyst", "org": "Touchmark DesScience" },
+  { "name": "Sivaraj Saminathan", "title": "Programmer Analyst", "org": "Touchmark Descience" },
   { "name": "G Pavithren", "title": "Senior Programmer Analyst" }
 ]
 ```

@@ -47,7 +47,7 @@ export default function About() {
             </p>
             <div className="flex items-center gap-4 text-sm text-muted">
               <span className="h-px w-12 bg-primary" />
-              Powered by Touchmark DesScience
+              Powered by Touchmark Descience
             </div>
           </div>
         </div>

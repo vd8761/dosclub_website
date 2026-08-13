@@ -8,7 +8,7 @@ export const site = {
   shortName: "Descience OS",
   tagline: "Open source. Open minds.",
   url: "https://descienceosclub.com",
-  email: "hello@descienceosclub.com",
+  email: "info@descienceosclub.com",
 };
 
 export const nav = [
