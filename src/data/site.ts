@@ -16,6 +16,7 @@ export const nav = [
   { label: "Domains", href: "#domains" },
   { label: "Journey", href: "#journey" },
   { label: "Events", href: "#events" },
+  { label: "OS Friday", href: "#open-source-friday" },
   { label: "Team", href: "#team" },
   { label: "FAQ", href: "#faq" },
 ];
@@ -60,10 +61,10 @@ export const pillars = [
 export const domains = [
   {
     no: "01",
-    title: "Web Development",
+    title: "AI Engineer",
     accent: "var(--color-primary)",
-    body: "React, Next.js and the modern frontend stack. Craft interfaces that feel alive.",
-    tags: ["React", "Next.js", "TypeScript", "UI/UX"],
+    body: "Build with models, not just around them. Prompting, RAG, agents and the tooling that ships them.",
+    tags: ["LLMs", "RAG", "Agents", "Python"],
   },
   {
     no: "02",
@@ -144,6 +145,45 @@ export const events = [
     location: "Online",
     host: "Industry experts",
     tag: "Community",
+  },
+];
+
+/**
+ * Open Source Friday - the weekly contribution session.
+ *
+ * Fallback only: once the CMS `open_source_friday` type is published these
+ * are replaced by real entries. See `docs/cms-open-source-friday.md`.
+ *
+ * Deliberately date-less. Hardcoded dates go stale and the section would
+ * quietly empty itself once they passed, so `lib/cms.ts` pins this roster
+ * onto the next few actual Fridays at render time.
+ */
+export const ossFridayIntro = {
+  cadence: "Every Friday, 18:00 IST",
+  body: "Two hours, one repository, real pull requests. Bring a laptop and pick an issue - mentors sit with you until it is merged.",
+};
+
+export const ossFridays = [
+  {
+    title: "First PR clinic",
+    location: "Online",
+    host: "Sivaraj Saminathan",
+    project: "good-first-issue",
+    tag: "Beginner",
+  },
+  {
+    title: "Docs sprint",
+    location: "Online",
+    host: "G Pavithren",
+    project: "descience-docs",
+    tag: "All levels",
+  },
+  {
+    title: "Issue triage & review",
+    location: "PERI Institute of Technology",
+    host: "Core team",
+    project: "descience-web",
+    tag: "Intermediate",
   },
 ];
 

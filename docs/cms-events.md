@@ -93,7 +93,7 @@ gracefully, and the popup simply omits sections it has no data for.
 
 | API ID | Type | Required | Notes |
 |---|---|---|---|
-| `domain` | `enum` | | **Must match the site's domains exactly**: `Web Development` · `Cloud Computing` · `Open Source` · `Digital Skills`. Shown as the badge on the list row. |
+| `domain` | `enum` | | **Must match the site's domains exactly**: `AI Engineer` · `Cloud Computing` · `Open Source` · `Digital Skills`. Shown as the badge on the list row. |
 | `level` | `enum` | | `Beginner` · `Intermediate` · `All levels`. |
 | `tags` | `multi_enum` | | Free topic tags, shown at the bottom of the dialog. |
 | `featured` | `boolean` | | Reserved for emphasis; not yet used in the layout. |

@@ -31,14 +31,21 @@ const field =
 const fieldLabel =
   "font-mono text-[11px] uppercase tracking-[0.14em] text-muted";
 
+type Status = "idle" | "sending" | "sent" | "error";
+
 export default function Join() {
   const root = useRef<HTMLElement>(null);
-  const [sent, setSent] = useState(false);
+  const [status, setStatus] = useState<Status>("idle");
+  const [error, setError] = useState("");
+  /** False when the enquiry reached us but the courtesy copy bounced. */
+  const [copySent, setCopySent] = useState(true);
   const [form, setForm] = useState({
     name: "",
     email: "",
     message: "",
     experience: EXPERIENCE[0],
+    /** Honeypot - hidden from humans, so anything here means a bot. */
+    company: "",
   });
   const [interests, setInterests] = useState<string[]>([]);
 
@@ -68,22 +75,42 @@ export default function Join() {
       prev.includes(title) ? prev.filter((t) => t !== title) : [...prev, title],
     );
 
-  const submit = (e: FormEvent) => {
+  const submit = async (e: FormEvent) => {
     e.preventDefault();
-    const subject = encodeURIComponent(`Club enquiry from ${form.name}`);
-    const body = encodeURIComponent(
-      [
-        form.message,
-        "",
-        `Experience: ${form.experience}`,
-        `Interested in: ${interests.length ? interests.join(", ") : "Not specified"}`,
-        "",
-        `- ${form.name} (${form.email})`,
-      ].join("\n"),
-    );
-    window.location.href = `mailto:${site.email}?subject=${subject}&body=${body}`;
-    setSent(true);
+    if (status === "sending") return;
+
+    setStatus("sending");
+    setError("");
+
+    try {
+      const res = await fetch("/api/enquiry", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...form, interests }),
+      });
+
+      const body = (await res.json().catch(() => null)) as {
+        error?: string;
+        copySent?: boolean;
+      } | null;
+
+      if (!res.ok) {
+        setError(body?.error ?? "Something went wrong. Please try again.");
+        setStatus("error");
+        return;
+      }
+
+      setCopySent(body?.copySent !== false);
+      setStatus("sent");
+    } catch {
+      setError(
+        "We couldn't reach the server. Check your connection and try again.",
+      );
+      setStatus("error");
+    }
   };
+
+  const sending = status === "sending";
 
   return (
     <section
@@ -157,7 +184,7 @@ export default function Join() {
           {/* ---------------- Right: the form ---------------- */}
           <div className="lg:col-span-7">
             <div className="rounded-3xl border border-line bg-surface p-8 shadow-[0_24px_64px_-48px_rgba(12,51,70,0.5)] md:p-12">
-              {sent ? (
+              {status === "sent" ? (
                 <div className="flex min-h-[400px] flex-col items-start justify-center">
                   <span
                     aria-hidden
@@ -166,25 +193,32 @@ export default function Join() {
                     ✓
                   </span>
                   <h3 className="display mt-6 text-3xl font-semibold">
-                    Almost there!
+                    Message sent!
                   </h3>
                   <p className="mt-4 max-w-sm text-muted">
-                    Your email app should be opening with everything filled in.
-                    If it doesn&apos;t, write to us at{" "}
-                    <a
-                      href={`mailto:${site.email}`}
-                      className="text-primary-dark underline underline-offset-4"
-                    >
-                      {site.email}
-                    </a>
-                    .
+                    {copySent ? (
+                      <>
+                        We&apos;ve sent a copy to{" "}
+                        <span className="text-fg">{form.email}</span> so you have
+                        it on record. A mentor will get back to you, usually
+                        within a couple of days.
+                      </>
+                    ) : (
+                      <>
+                        Your enquiry reached us, but we couldn&apos;t deliver
+                        your copy to{" "}
+                        <span className="text-fg">{form.email}</span>. A mentor
+                        will still get back to you, usually within a couple of
+                        days.
+                      </>
+                    )}
                   </p>
                   <button
                     type="button"
-                    onClick={() => setSent(false)}
+                    onClick={() => setStatus("idle")}
                     className="btn btn-ghost mt-8"
                   >
-                    Edit my details
+                    Send another
                   </button>
                 </div>
               ) : (
@@ -197,7 +231,10 @@ export default function Join() {
                       </label>
                       <input
                         id="join-name"
+                        name="name"
                         required
+                        maxLength={100}
+                        autoComplete="name"
                         placeholder="Ada Lovelace"
                         className={field}
                         value={form.name}
@@ -212,8 +249,11 @@ export default function Join() {
                       </label>
                       <input
                         id="join-email"
+                        name="email"
                         required
                         type="email"
+                        maxLength={254}
+                        autoComplete="email"
                         placeholder="you@example.com"
                         className={field}
                         value={form.email}
@@ -222,6 +262,25 @@ export default function Join() {
                         }
                       />
                     </div>
+                  </div>
+
+                  {/* Honeypot. Hidden from sighted users and from assistive
+                      tech, and skipped by tabbing - only a bot fills it. */}
+                  <div aria-hidden className="hidden">
+                    <label htmlFor="join-company">
+                      Company
+                      <input
+                        id="join-company"
+                        name="company"
+                        type="text"
+                        tabIndex={-1}
+                        autoComplete="off"
+                        value={form.company}
+                        onChange={(e) =>
+                          setForm({ ...form, company: e.target.value })
+                        }
+                      />
+                    </label>
                   </div>
 
                   {/* Interests */}
@@ -293,8 +352,10 @@ export default function Join() {
                     </label>
                     <textarea
                       id="join-message"
+                      name="message"
                       required
                       rows={4}
+                      maxLength={4000}
                       placeholder="What do you want to learn or build with us?"
                       className={`${field} resize-none`}
                       value={form.message}
@@ -304,12 +365,33 @@ export default function Join() {
                     />
                   </div>
 
+                  {/* Errors are announced, not just shown. */}
+                  {status === "error" && error && (
+                    <p
+                      role="alert"
+                      className="rounded-xl border border-line bg-ink-soft px-4 py-3 text-sm text-fg"
+                    >
+                      {error}
+                    </p>
+                  )}
+
                   <div className="flex flex-wrap items-center gap-4">
-                    <button type="submit" className="btn btn-primary">
-                      Send it <span aria-hidden>{"->"}</span>
+                    <button
+                      type="submit"
+                      disabled={sending}
+                      aria-busy={sending}
+                      className="btn btn-primary disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {sending ? (
+                        "Sending..."
+                      ) : (
+                        <>
+                          Send it <span aria-hidden>{"->"}</span>
+                        </>
+                      )}
                     </button>
                     <p className="text-xs text-muted">
-                      Opens your email app - nothing is stored here.
+                      We&apos;ll email you a copy of your enquiry.
                     </p>
                   </div>
                 </form>

@@ -34,7 +34,7 @@ export default function Team() {
   return (
     <section id="team" ref={root} className="section section-flush-t">
       <div className="container-x">
-        <p className="label mb-6">/ 05 - The people</p>
+        <p className="label mb-6">/ 06 - The people</p>
         <h2 className="display max-w-3xl text-4xl leading-[1.02] sm:text-5xl lg:text-6xl xl:text-7xl">
           <RevealText
             text="Mentors who've shipped, helping you"

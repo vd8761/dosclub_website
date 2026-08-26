@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     template: "%s | Descience Open Source Club",
   },
   description:
-    "Descience Open Source Club is a student-driven community for collaborative learning in web development, cloud computing and open source. Learn, build and ship together.",
+    "Descience Open Source Club is a student-driven community for collaborative learning in AI engineering, cloud computing and open source. Learn, build and ship together.",
   keywords: [
     "open source club",
     "Descience",

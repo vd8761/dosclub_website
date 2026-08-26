@@ -8,13 +8,14 @@ import Manifesto from "@/components/Manifesto";
 import Domains from "@/components/Domains";
 import Journey from "@/components/Journey";
 import Events from "@/components/Events";
+import OpenSourceFriday from "@/components/OpenSourceFriday";
 import Team from "@/components/Team";
 import Partners from "@/components/Partners";
 import Faq from "@/components/Faq";
 import Join from "@/components/Join";
 import Footer from "@/components/Footer";
 import LoopEnd from "@/components/LoopEnd";
-import { getEvents } from "@/lib/cms";
+import { getEvents, getOpenSourceFridays } from "@/lib/cms";
 
 /**
  * Re-render the page every 5 minutes.
@@ -27,7 +28,12 @@ import { getEvents } from "@/lib/cms";
 export const revalidate = 300;
 
 export default async function Home() {
-  const { events } = await getEvents();
+  // Two independent Delivery API reads - fire them together rather than
+  // letting the second wait on the first.
+  const [{ events }, { events: ossFridaySessions }] = await Promise.all([
+    getEvents(),
+    getOpenSourceFridays(),
+  ]);
 
   return (
     <>
@@ -42,6 +48,7 @@ export default async function Home() {
           <Domains />
           <Journey />
           <Events events={events} />
+          <OpenSourceFriday sessions={ossFridaySessions} />
           <Team />
           <Partners />
           <Faq />

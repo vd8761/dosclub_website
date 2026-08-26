@@ -47,6 +47,11 @@ export type ClubEvent = {
   seats?: number | null;
   seatsLeft?: number | null;
   price?: string;
+  /* Open Source Friday sessions add the project they work on. Optional on
+     every other kind of entry, and simply absent for plain events. */
+  project?: string;
+  repoUrl?: string;
+  issuesUrl?: string;
   registerUrl?: string;
   recordingUrl?: string;
   status: EventStatus;
@@ -261,6 +266,9 @@ export function mapEntry(entry: DeliveryEntry): ClubEvent | null {
     seats: num(d.seats),
     seatsLeft: num(d.seats_left),
     price: str(d.price),
+    project: str(d.project),
+    repoUrl: str(d.repo_url),
+    issuesUrl: str(d.issues_url),
     registerUrl: str(d.register_url),
     recordingUrl: str(d.recording_url),
     status,
