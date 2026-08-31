@@ -59,7 +59,6 @@ export default function RootLayout({
       className={`${display.variable} ${mono.variable} antialiased`}
     >
       <body className="noise min-h-screen">
-        <CustomCursor />
         {children}
         {/* Wipe used by LoopEnd to cover the scroll reset. It lives here,
      outside #smooth-content, because `position: fixed` inside a

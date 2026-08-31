@@ -21,8 +21,8 @@ function LogoTile({
 }) {
   return (
     <div
-      className={`group flex items-center justify-center rounded-2xl border bg-surface p-6 transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_22px_60px_-32px_rgba(12,51,70,0.45)] ${
-        featured ? "border-primary/30" : "border-line hover:border-primary/40"
+      className={`group relative flex items-center justify-center overflow-hidden rounded-2xl border bg-surface p-4 sm:p-5 transition-all duration-300 hover:-translate-y-1.5 hover:border-primary/50 hover:shadow-[0_20px_50px_-24px_rgba(12,51,70,0.35)] ${
+        featured ? "border-primary/30" : "border-line"
       } ${className}`}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -30,9 +30,7 @@ function LogoTile({
         src={src}
         alt={altFromSrc(src)}
         loading="lazy"
-        className={`w-auto max-w-full object-contain transition-transform duration-300 group-hover:scale-[1.04] ${
-          featured ? "max-h-16" : "max-h-14"
-        }`}
+        className="h-full w-full max-h-full max-w-full object-contain p-1.5 transition-transform duration-300 group-hover:scale-105"
       />
     </div>
   );
@@ -93,7 +91,7 @@ export default function PartnersShowcase({
         {institutions.length > 0 && (
           <div className="mt-12">
             <GroupHeader
-              label="Institution partners"
+              label="Academic Partners"
               count={institutions.length}
             />
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
@@ -108,22 +106,14 @@ export default function PartnersShowcase({
         {industry.length > 0 && (
           <div className="mt-12">
             <GroupHeader
-              label="Industry partner"
-              count={industry.length > 1 ? industry.length : undefined}
+              label="Industry & Corporate Network"
+              count={industry.length}
             />
-            {industry.length === 1 ? (
-              <div className="flex justify-center">
-                <div className="w-full max-w-md">
-                  <LogoTile src={industry[0]} className="h-40" featured />
-                </div>
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-                {industry.map((src, i) => (
-                  <LogoTile key={i} src={src} className="h-32" featured />
-                ))}
-              </div>
-            )}
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+              {industry.map((src, i) => (
+                <LogoTile key={i} src={src} className="h-28 md:h-32" />
+              ))}
+            </div>
           </div>
         )}
       </div>

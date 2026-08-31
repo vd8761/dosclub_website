@@ -16,7 +16,6 @@ export const nav = [
   { label: "Domains", href: "#domains" },
   { label: "Journey", href: "#journey" },
   { label: "Events", href: "#events" },
-  { label: "OS Friday", href: "#open-source-friday" },
   { label: "Team", href: "#team" },
   { label: "FAQ", href: "#faq" },
 ];
@@ -115,10 +114,10 @@ export const journey = [
 
 /** Stats band - update with real numbers when available */
 export const stats = [
-  { value: 500, suffix: "+", label: "Community members" },
-  { value: 20, suffix: "+", label: "Workshops & webinars" },
-  { value: 5, suffix: "", label: "Partner institutions" },
-  { value: 4, suffix: "", label: "Core domains" },
+  { value: 6000, suffix: "+", label: "Community members" },
+  { value: 167, suffix: "+", label: "Workshops & webinars" },
+  { value: 10, suffix: "+", label: "Partner institutions" },
+  { value: 41, suffix: "+", label: "Domestic & International Internships" },
 ];
 
 export const events = [
@@ -189,14 +188,28 @@ export const ossFridays = [
 
 export const team = [
   {
-    name: "G Pavithren",
-    role: "Cloud & Mentorship Lead",
-    title: "Senior Programmer Analyst",
+    name: "Mr. Sathya Prakash Sekaran",
+    role: "Director - HR",
+    title: "Ziffity Solutions",
+    avatar: "/experts/Sathya_Prakash_Sekaran.png",
   },
   {
-    name: "Sivaraj Saminathan",
-    role: "Frontend & Workshops Lead",
-    title: "Programmer Analyst",
+    name: "Mr. Subburaj Thangappalam",
+    role: "Agile Project Manager & Practitioner",
+    title: "L&T Technology Services",
+    avatar: "/experts/Subbu_Raj.png",
+  },
+  {
+    name: "Mr. Nirmal Jeyavelraja",
+    role: "Founder & Director",
+    title: "Wizardlenx XR Studio (OPC) Pvt Ltd",
+    avatar: "/experts/Nirmal_Jeyavelraj.png",
+  },
+  {
+    name: "Mr. Karthikeyan Loganathan",
+    role: "Programming Analyst",
+    title: "Cognizant",
+    avatar: "/experts/Karthikeyan_Loganathan.png",
   },
 ];
 

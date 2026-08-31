@@ -27,6 +27,9 @@ const LIMITS = {
   email: 254,
   message: 4000,
   experience: 60,
+  category: 60,
+  phone: 30,
+  organization: 120,
   interest: 60,
   interests: 12,
 } as const;
@@ -79,7 +82,10 @@ function parse(body: Payload): { enquiry: Enquiry } | { error: string } {
   const name = text(body.name, LIMITS.name);
   const email = text(body.email, LIMITS.email);
   const message = text(body.message, LIMITS.message, true);
-  const experience = text(body.experience, LIMITS.experience);
+  const category = text(body.category, LIMITS.category) || undefined;
+  const phone = text(body.phone, LIMITS.phone) || undefined;
+  const organization = text(body.organization, LIMITS.organization) || undefined;
+  const experience = text(body.experience, LIMITS.experience) || undefined;
 
   if (!name) return { error: "Please tell us your name." };
   if (!EMAIL_RE.test(email)) return { error: "That email doesn't look right." };
@@ -90,9 +96,20 @@ function parse(body: Payload): { enquiry: Enquiry } | { error: string } {
         .map((i) => text(i, LIMITS.interest))
         .filter(Boolean)
         .slice(0, LIMITS.interests)
-    : [];
+    : undefined;
 
-  return { enquiry: { name, email, message, experience, interests } };
+  return {
+    enquiry: {
+      name,
+      email,
+      message,
+      category,
+      phone,
+      organization,
+      experience,
+      interests,
+    },
+  };
 }
 
 /* ---------------------------------------------------------------------

@@ -151,46 +151,58 @@ function row(label: string, value: string): string {
 export type Enquiry = {
   name: string;
   email: string;
+  category?: string;
+  phone?: string;
+  organization?: string;
   message: string;
-  experience: string;
-  interests: string[];
+  experience?: string;
+  interests?: string[];
 };
 
 function summaryTable(e: Enquiry): string {
-  const interests = e.interests.length
+  const interests = e.interests && e.interests.length
     ? e.interests.join(", ")
-    : "Not specified";
+    : undefined;
   return `<table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;">
+    ${e.category ? row("Category", esc(e.category)) : ""}
     ${row("Name", esc(e.name))}
     ${row("Email", `<a href="mailto:${esc(e.email)}" style="color:${BRAND};text-decoration:none;">${esc(e.email)}</a>`)}
-    ${row("Experience", esc(e.experience))}
-    ${row("Interests", esc(interests))}
+    ${e.phone ? row("Phone", esc(e.phone)) : ""}
+    ${e.organization ? row("Organization / College", esc(e.organization)) : ""}
+    ${e.experience ? row("Experience", esc(e.experience)) : ""}
+    ${interests ? row("Interests", esc(interests)) : ""}
     ${row("Message", paragraph(e.message))}
   </table>`;
 }
 
 function summaryText(e: Enquiry): string {
   return [
+    e.category ? `Category:   ${e.category}` : "",
     `Name:       ${e.name}`,
     `Email:      ${e.email}`,
-    `Experience: ${e.experience}`,
-    `Interests:  ${e.interests.length ? e.interests.join(", ") : "Not specified"}`,
+    e.phone ? `Phone:      ${e.phone}` : "",
+    e.organization ? `Org/Inst:   ${e.organization}` : "",
+    e.experience ? `Experience: ${e.experience}` : "",
+    e.interests?.length ? `Interests:  ${e.interests.join(", ")}` : "",
     "",
     "Message:",
     e.message,
-  ].join("\n");
+  ]
+    .filter(Boolean)
+    .join("\n");
 }
 
 /** Notification to the club inbox. Reply-To is the enquirer. */
 export function adminEmail(e: Enquiry) {
+  const tag = e.category ? ` [${e.category}]` : "";
   return {
-    subject: `New enquiry from ${e.name}`,
+    subject: `New enquiry${tag} from ${e.name}`,
     html: shell(
-      "New club enquiry",
-      `Someone just submitted the join form on the website.`,
+      `New enquiry${tag}`,
+      `Someone just submitted an enquiry through the website.`,
       summaryTable(e),
     ),
-    text: [`New club enquiry`, "", summaryText(e)].join("\n"),
+    text: [`New enquiry${tag}`, "", summaryText(e)].join("\n"),
   };
 }
 

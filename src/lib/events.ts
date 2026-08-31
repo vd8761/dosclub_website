@@ -7,7 +7,13 @@
  */
 
 export type EventMode = "in_person" | "online" | "hybrid";
-export type EventStatus = "scheduled" | "full" | "cancelled" | "completed";
+export type EventStatus =
+  | "scheduled"
+  | "full"
+  | "cancelled"
+  | "completed"
+  | "ongoing"
+  | "live";
 
 export type EventHost = {
   name: string;

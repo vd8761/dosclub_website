@@ -73,9 +73,33 @@ async function fetchType(type: string): Promise<ClubEvent[] | null> {
 }
 
 /**
- * Fetch published events. Falls back to the bundled sample data whenever
- * the CMS is unconfigured or unreachable, so the site never renders an
- * empty section because of an outage.
+ * ============================================================================
+ * TODO: CMS DELIVERY FILTERING & CARD COMPOSITION RULES
+ * ============================================================================
+ * When consuming live events from the CMS, format and slice according to:
+ *
+ * 1. n past AND 2+ upcoming available:
+ *    - Return [1 most recent completed (faded, disabled button "Completed"), 2 upcoming (active, register button)]
+ *
+ * 2. n past AND 1 upcoming available:
+ *    - Return [2 most recent completed (faded, disabled button "Completed"), 1 upcoming (active, register button)]
+ *
+ * 3. n past AND 1 ongoing available:
+ *    - Return [2 most recent completed (faded, disabled button "Completed"), 1 ongoing (registration disabled, button "Ongoing")]
+ *
+ * 4. 0 past AND 3 upcoming available:
+ *    - Return [3 upcoming events] (show "Register" button if register URL exists, else display "Upcoming")
+ *
+ * 5. n past AND 0 upcoming available:
+ *    - Return [3 most recent completed events] (do NOT fade anything; show disabled button "Completed")
+ *
+ * 6. Hero Ribbon:
+ *    - Pick the nearest "Ongoing" or "Upcoming" event for the Hero ribbon.
+ *    - If ONLY past events exist OR CMS is unreachable/down, do NOT show the Hero event ribbon.
+ *
+ * 7. Outage / Unconfigured:
+ *    - Fall back to hardcoded sample events in `data/site.ts`.
+ * ============================================================================
  */
 export async function getEvents(): Promise<EventsResult> {
   const mapped = await fetchType(EVENT_TYPE);

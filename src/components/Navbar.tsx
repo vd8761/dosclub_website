@@ -19,27 +19,29 @@ export default function Navbar() {
   // write itself is batched into one rAF so bursts of scroll events
   // collapse into a single style change per frame.
   useEffect(() => {
-    let docH = 1;
-    let heroH = 1;
     let ticking = false;
 
     const measure = () => {
-      docH = Math.max(
-        1,
-        document.documentElement.scrollHeight - window.innerHeight,
-      );
-      heroH =
-        document.getElementById("top")?.offsetHeight || window.innerHeight;
+      // Intentionally calculated during update for precision
     };
 
     const update = () => {
       ticking = false;
       const st = window.scrollY;
+      const heroEl = document.getElementById("top");
+      const aboutEl = document.getElementById("about");
+      const faqEl = document.getElementById("faq");
+
+      const heroH = heroEl?.offsetHeight || window.innerHeight;
       setScrolled(st > 30);
-      // Reveal once most of the landing view is behind us.
       setPastHero(st > heroH * 0.72);
-      if (barRef.current) {
-        barRef.current.style.transform = `scaleX(${Math.min(st / docH, 1)})`;
+
+      if (barRef.current && aboutEl && faqEl) {
+        const startY = aboutEl.offsetTop - 120;
+        const endY = faqEl.offsetTop + faqEl.offsetHeight - window.innerHeight;
+        const totalSpan = Math.max(1, endY - startY);
+        const progress = Math.min(Math.max((st - startY) / totalSpan, 0), 1);
+        barRef.current.style.transform = `scaleX(${progress})`;
       }
     };
 
@@ -120,19 +122,31 @@ export default function Navbar() {
 
           {/* Commit-timeline nav */}
           <nav className="hidden justify-self-center md:block">
-            <div className="relative flex items-end gap-6 px-2">
-              <span className="pointer-events-none absolute bottom-1 left-2 right-2 h-px bg-line" />
+            <div className="relative flex items-end gap-6 px-4">
+              {/* Background rail anchored precisely between first and last dot centers */}
+              <span className="pointer-events-none absolute bottom-[4.5px] left-8 right-8 h-[2px] bg-line rounded-full" />
+              {/* Active filled progress line on the track itself */}
+              <span
+                ref={barRef}
+                className="pointer-events-none absolute bottom-[4.5px] left-8 right-8 h-[2px] origin-left bg-gradient-to-r from-accent via-primary to-primary-soft rounded-full"
+                style={{ transform: "scaleX(0)", willChange: "transform" }}
+              />
               {nav.map((item, i) => {
                 const isActive = i === active;
+                const isPassed = active >= i;
                 return (
                   <button
                     key={item.href}
                     onClick={() => go(item.href)}
-                    className="group flex flex-col items-center gap-2"
+                    className="group flex flex-col items-center gap-2 relative z-10"
                   >
                     <span
-                      className={`font-mono text-[10.5px] uppercase tracking-[0.14em] transition-colors duration-300 ${
-                        isActive ? "text-fg" : "text-muted group-hover:text-fg"
+                      className={`font-mono text-[11px] font-bold uppercase tracking-[0.14em] transition-colors duration-300 ${
+                        isActive
+                          ? "text-primary-dark"
+                          : isPassed
+                            ? "text-fg"
+                            : "text-muted group-hover:text-fg"
                       }`}
                     >
                       {item.label}
@@ -140,8 +154,10 @@ export default function Navbar() {
                     <span
                       className={`relative z-10 h-[9px] w-[9px] rounded-full border transition-all duration-300 ${
                         isActive
-                          ? "scale-110 border-primary bg-primary"
-                          : "border-line bg-ink group-hover:border-primary"
+                          ? "scale-125 border-primary bg-primary shadow-[0_0_8px_rgba(76,175,80,0.6)]"
+                          : isPassed
+                            ? "border-primary bg-primary-soft"
+                            : "border-line bg-surface group-hover:border-primary"
                       }`}
                     />
                   </button>
@@ -150,19 +166,26 @@ export default function Navbar() {
             </div>
           </nav>
 
-          {/* Live CTA */}
-          <button
-            onClick={() => go("#join")}
-            className="hidden items-center gap-2 justify-self-end rounded-full bg-primary-dark px-6 py-2 text-white transition-colors hover:bg-primary md:inline-flex"
-          >
-            <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary-soft opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-primary-soft" />
-            </span>
-            <span className="font-mono text-[11px] uppercase tracking-[0.14em]">
-              Join the club
-            </span>
-          </button>
+          {/* Full-height Fused Top Bar CTA */}
+          <div className="hidden h-16 items-center justify-self-end md:flex">
+            <div className="flex h-full items-stretch border-x border-line">
+              <a
+                href="/enquiry"
+                className="flex items-center bg-primary/10 px-6 font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-primary-dark transition-colors hover:bg-primary/20 hover:text-primary-dark"
+              >
+                Get in touch
+              </a>
+              <a
+                href="http://membership.descienceosclub.com/"
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center bg-primary-dark px-6 font-mono text-[11px] font-bold uppercase tracking-[0.14em] !text-white hover:!text-white transition-colors hover:bg-primary"
+                style={{ color: "#ffffff" }}
+              >
+                Become a member
+              </a>
+            </div>
+          </div>
 
           {/* Mobile burger */}
           <button
@@ -182,13 +205,6 @@ export default function Navbar() {
             />
           </button>
         </div>
-
-        {/* Scroll progress branch line */}
-        <span
-          ref={barRef}
-          className="absolute bottom-0 left-0 h-[2px] w-full origin-left bg-gradient-to-r from-accent to-primary"
-          style={{ transform: "scaleX(0)", willChange: "transform" }}
-        />
       </div>
 
       {/* Mobile overlay */}
@@ -215,12 +231,22 @@ export default function Navbar() {
               {item.label}
             </button>
           ))}
-          <button
-            onClick={() => go("#join")}
-            className="btn btn-primary mt-8 justify-center"
-          >
-            Join the club
-          </button>
+          <div className="mt-8 flex flex-col gap-3">
+            <a
+              href="/enquiry"
+              className="btn btn-ghost justify-center"
+            >
+              Get in touch
+            </a>
+            <a
+              href="http://membership.descienceosclub.com/"
+              target="_blank"
+              rel="noreferrer"
+              className="btn btn-primary justify-center"
+            >
+              Become a member
+            </a>
+          </div>
         </nav>
       </div>
     </header>

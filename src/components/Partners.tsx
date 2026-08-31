@@ -6,7 +6,7 @@ import PartnersShowcase from "./PartnersShowcase";
 // public/partners/institution_partners/
 // public/partners/industrial_partners/
 export default function Partners() {
-  const institutions = listPartnerLogos("institution_partners");
-  const industry = listPartnerLogos("industrial_partners");
+  const institutions = listPartnerLogos("academic_partners");
+  const industry = listPartnerLogos("industry_partners");
   return <PartnersShowcase institutions={institutions} industry={industry} />;
 }

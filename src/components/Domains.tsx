@@ -40,16 +40,13 @@ export default function Domains() {
         defaults: { ease: "power2.inOut" },
         scrollTrigger: {
           trigger: root.current,
-          start: "top top",
-          end: () => "+=" + cards.length * window.innerHeight * 0.75,
+          start: "top 15%",
+          end: () => "+=" + cards.length * 280,
           pin: pin.current,
           pinSpacing: true,
-          scrub: 0.5,
+          scrub: 0.4,
           invalidateOnRefresh: true,
           onUpdate: (self) => {
-            // The timeline runs for (n - 1) units - one per flick - so the
-            // front card index is progress across that range, rounded so
-            // the indicator flips halfway through each flick.
             const i = gsap.utils.clamp(
               0,
               cards.length - 1,
@@ -64,23 +61,19 @@ export default function Domains() {
         // The last card stays - there is nothing behind it to reveal.
         if (i === cards.length - 1) return;
 
-        // Flick the front card away: it lifts, spins out to alternating
-        // sides, and fades. Transform + opacity only, so it stays on the
-        // compositor.
         tl.to(
           card,
           {
-            x: i % 2 === 0 ? "62%" : "-62%",
-            y: -72,
-            rotate: i % 2 === 0 ? 16 : -16,
-            scale: 0.9,
+            x: i % 2 === 0 ? "65%" : "-65%",
+            y: -50,
+            rotate: i % 2 === 0 ? 14 : -14,
+            scale: 0.92,
             opacity: 0,
             duration: 1,
           },
           i,
         );
 
-        // Everything behind it steps forward one seat.
         cards.slice(i + 1).forEach((behind, k) => {
           tl.to(behind, { ...seat(k), duration: 1 }, i);
         });
@@ -90,26 +83,26 @@ export default function Domains() {
   );
 
   return (
-    <section id="domains" ref={root} className="section section-flush-b">
+    <section id="domains" ref={root} className="section py-16 md:py-24">
       <div ref={pin} className="container-x">
-        <div className="grid items-center gap-12 lg:grid-cols-12 lg:gap-8">
+        <div className="grid items-center gap-10 lg:grid-cols-12 lg:gap-12">
           {/* ---------------- Header + progress ---------------- */}
           <div className="lg:col-span-5">
-            <p className="label mb-6">/ 02 - Focus areas</p>
-            <h2 className="display text-4xl leading-[1] sm:text-5xl lg:text-6xl">
+            <p className="label mb-4 text-primary-dark">/ 02 - Focus areas</p>
+            <h2 className="display text-4xl font-bold leading-[1.05] sm:text-5xl lg:text-6xl">
               Four domains.
               <br />
               <span className="text-gradient">One community.</span>
             </h2>
-            <p className="mt-6 max-w-md text-muted">
-              Pick a lane or explore them all. Every track blends learning with
-              real, shippable work.
+            <p className="mt-5 max-w-md text-base leading-relaxed text-muted">
+              Pick a lane or explore them all. Every track blends comprehensive
+              learning with real-world, shippable projects.
             </p>
 
             {/* Deck progress */}
-            <div className="mt-10 flex items-center gap-4">
-              <span className="font-mono text-sm text-muted">
-                <span className="text-fg">
+            <div className="mt-8 flex items-center gap-4">
+              <span className="font-mono text-sm font-semibold text-muted">
+                <span className="text-primary-dark">
                   {String(active + 1).padStart(2, "0")}
                 </span>
                 {" / "}
@@ -119,7 +112,7 @@ export default function Domains() {
                 {domains.map((d, i) => (
                   <span
                     key={d.no}
-                    className="h-1 w-8 rounded-full transition-colors duration-300"
+                    className="h-1.5 w-10 rounded-full transition-all duration-300"
                     style={{
                       background:
                         i <= active ? d.accent : "var(--color-ink-2)",
@@ -132,12 +125,12 @@ export default function Domains() {
 
           {/* ---------------- The deck ---------------- */}
           <div className="lg:col-span-7">
-            <div className="relative mx-auto aspect-square w-full max-w-[26rem]">
+            <div className="relative mx-auto h-[380px] sm:h-[420px] w-full max-w-[34rem]">
               {domains.map((d, i) => (
                 <article
                   key={d.no}
                   data-card
-                  className="absolute inset-0 flex flex-col justify-between overflow-hidden rounded-3xl border border-line bg-surface p-8 shadow-[0_32px_80px_-48px_rgba(12,51,70,0.6)]"
+                  className="absolute inset-0 flex flex-col justify-between overflow-hidden rounded-3xl border border-line bg-surface p-7 sm:p-9 shadow-[0_32px_80px_-48px_rgba(12,51,70,0.45)]"
                   style={{
                     zIndex: domains.length - i,
                     transformOrigin: "center center",
@@ -146,14 +139,14 @@ export default function Domains() {
                   {/* accent hairline */}
                   <span
                     aria-hidden
-                    className="absolute inset-x-0 top-0 h-1"
+                    className="absolute inset-x-0 top-0 h-1.5"
                     style={{ background: d.accent }}
                   />
 
                   {/* watermark index */}
                   <span
                     aria-hidden
-                    className="display pointer-events-none absolute -right-2 -top-6 text-[9rem] font-bold leading-none text-transparent"
+                    className="display pointer-events-none absolute -right-2 -top-6 text-[8rem] sm:text-[9.5rem] font-bold leading-none text-transparent opacity-80 select-none"
                     style={{ WebkitTextStroke: "1px var(--color-stroke)" }}
                   >
                     {d.no}
@@ -161,20 +154,22 @@ export default function Domains() {
 
                   <div className="relative">
                     <span
-                      className="inline-block h-3 w-3 rounded-full"
+                      className="inline-block h-3.5 w-3.5 rounded-full ring-4 ring-ink-2"
                       style={{ background: d.accent }}
                     />
-                    <h3 className="display mt-6 text-3xl font-semibold">
+                    <h3 className="display mt-5 text-2xl sm:text-3xl font-bold">
                       {d.title}
                     </h3>
-                    <p className="mt-4 text-muted">{d.body}</p>
+                    <p className="mt-4 text-sm sm:text-base leading-relaxed text-muted">
+                      {d.body}
+                    </p>
                   </div>
 
-                  <div className="relative flex flex-wrap gap-2">
+                  <div className="relative flex flex-wrap gap-2 pt-4 border-t border-line/60">
                     {d.tags.map((t) => (
                       <span
                         key={t}
-                        className="rounded-full border border-line px-4 py-2 font-mono text-xs text-muted"
+                        className="rounded-full border border-line bg-ink/50 px-3.5 py-1.5 font-mono text-xs font-medium text-muted"
                       >
                         {t}
                       </span>

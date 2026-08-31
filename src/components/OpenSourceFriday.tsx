@@ -1,23 +1,52 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "@/lib/gsap";
 import RevealText from "./ui/RevealText";
-import { ossFridayIntro } from "@/data/site";
+import EventModal from "./EventModal";
 import {
   formatEventDayMonth,
   formatEventTime,
   isPast,
   locationLine,
+  MODE_LABEL,
   type ClubEvent,
 } from "@/lib/events";
 
-/** How many upcoming sessions the home page lists before it stops. */
-const MAX_SHOWN = 4;
+/**
+ * ============================================================================
+ * TODO: CMS EVENTS INTEGRATION & DISPLAY SPECIFICATION
+ * ============================================================================
+ * The events section is intended to be driven by live CMS portal content.
+ * Follow these exact rules when wiring CMS delivery data:
+ *
+ * 1. SCENARIO A: n past/completed events AND 2+ upcoming events available
+ *    - Display 1 last completed event (faded appearance, registration disabled, button says "Completed").
+ *    - Display 2 upcoming events (active appearance with active "Register" button if link available).
+ *
+ * 2. SCENARIO B: n past events AND 1 upcoming event available
+ *    - Display past 2 completed events (faded, disabled "Completed" button).
+ *    - Display the 1 upcoming event (active, register button).
+ *
+ * 3. SCENARIO C: n past events AND 1 ongoing event available
+ *    - Display past 2 completed events (faded, disabled "Completed" button).
+ *    - Display the 1 ongoing event (registration automatically disabled, button displays "Ongoing").
+ *
+ * 4. SCENARIO D: 0 past events AND 3 upcoming events available
+ *    - Display all 3 upcoming events.
+ *    - Show "Register" button if registration URL is provided by CMS; otherwise display "Upcoming".
+ *
+ * 5. SCENARIO E: n past events AND 0 upcoming events available
+ *    - Display the last 3 completed events.
+ *    - Do NOT fade anything in this state; display disabled button that says "Completed".
+ *
+ * 6. FALLBACK / OUTAGE:
+ *    - If no events are returned from CMS or CMS is down/unreachable, render the bundled fallback events in `data/site.ts`.
+ * ============================================================================
+ */
 
-const deep = "var(--color-on-deep)";
-const deepMuted = "var(--color-on-deep-muted)";
+type FilterTab = "all" | "upcoming" | "ongoing" | "completed";
 
 export default function OpenSourceFriday({
   sessions,
@@ -25,193 +54,287 @@ export default function OpenSourceFriday({
   sessions: ClubEvent[];
 }) {
   const root = useRef<HTMLElement>(null);
-
-  // Only what's ahead. A weekly session's past instances are noise on the
-  // home page - the point of the section is "here's the next one".
-  const upcoming = sessions.filter((s) => !isPast(s)).slice(0, MAX_SHOWN);
+  const [openId, setOpenId] = useState<string | null>(null);
+  const [filter, setFilter] = useState<FilterTab>("all");
 
   useGSAP(
     () => {
-      gsap.from("[data-osf-card]", {
-        y: 28,
+      gsap.from("[data-event-card]", {
+        y: 32,
         opacity: 0,
         duration: 0.8,
         ease: "expo.out",
         stagger: 0.08,
-        scrollTrigger: { trigger: "[data-osf-list]", start: "top 85%" },
+        scrollTrigger: { trigger: "[data-event-grid]", start: "top 85%" },
       });
     },
-    { scope: root, dependencies: [upcoming.length] },
+    { scope: root, dependencies: [sessions.length, filter] },
   );
+
+  const getStatus = (e: ClubEvent): "upcoming" | "ongoing" | "completed" => {
+    if (e.status === "completed" || isPast(e)) return "completed";
+    if (e.status === "live") return "ongoing";
+    return "upcoming";
+  };
+
+  const filtered = sessions.filter((e) => {
+    if (filter === "all") return true;
+    return getStatus(e) === filter;
+  });
+
+  const open = sessions.find((e) => e.id === openId) ?? null;
+  const upcomingCount = sessions.filter((e) => getStatus(e) === "upcoming").length;
+  const ongoingCount = sessions.filter((e) => getStatus(e) === "ongoing").length;
+  const completedCount = sessions.filter((e) => getStatus(e) === "completed").length;
 
   return (
     <section
-      id="open-source-friday"
+      id="events"
       ref={root}
-      className="section bg-deep text-[color:var(--color-on-deep)]"
+      className="section relative overflow-hidden mt-12 md:mt-20 lg:mt-28 border-t border-line bg-gradient-to-b from-ink via-ink-soft to-ink"
     >
+      {/* Background ambient lighting */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -top-40 left-1/2 -z-10 h-96 w-[48rem] -translate-x-1/2 rounded-full bg-gradient-to-br from-accent/15 via-primary/10 to-transparent blur-3xl"
+      />
+
       <div className="container-x">
-        {/* ---------------- Header ---------------- */}
-        <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
+        {/* ---------------- Section Header ---------------- */}
+        <div className="flex flex-col justify-between gap-8 md:flex-row md:items-end">
           <div>
-            <p className="label mb-6" style={{ color: deepMuted }}>
-              / 05 - Open Source Friday
-            </p>
+            <div className="mb-4 inline-flex items-center rounded-full border border-primary/30 bg-primary/10 px-3 py-1 font-mono text-[11px] font-medium uppercase tracking-[0.14em] text-primary-dark">
+              / 04 - Events
+            </div>
             <h2 className="display text-4xl leading-[1.02] sm:text-5xl lg:text-6xl xl:text-7xl">
               <RevealText
-                text="Every Friday,"
+                text="Workshops, webinars &"
                 as="span"
                 className="block"
                 scrub
               />
               <RevealText
-                text="we ship together."
+                text="build sessions."
                 as="span"
-                className="block text-gradient-2"
+                className="block text-gradient"
                 scrub
               />
             </h2>
           </div>
-          <div className="max-w-xs">
-            <p
-              className="font-mono text-xs uppercase tracking-[0.14em]"
-              style={{ color: deepMuted }}
-            >
-              {ossFridayIntro.cadence}
-            </p>
-            <p className="mt-4 text-sm leading-relaxed" style={{ color: deepMuted }}>
-              {ossFridayIntro.body}
+
+          <div className="max-w-sm">
+            <p className="text-sm leading-relaxed text-muted md:text-base">
+              Hands-on sessions, Open Source Fridays and live masterclasses led by
+              working engineers and mentors.
             </p>
           </div>
         </div>
 
-        {/* ---------------- Sessions ---------------- */}
-        {upcoming.length === 0 ? (
-          <p
-            className="mt-12 border-t pt-8"
-            style={{ borderColor: "rgba(232,241,245,0.16)", color: deepMuted }}
-          >
-            The next session is being scheduled. Check back soon - or join the
-            community and we&apos;ll tell you first.
-          </p>
+        {/* ---------------- Filter Tabs ---------------- */}
+        <div className="mt-12 flex flex-wrap items-center justify-between gap-4 border-b border-line pb-6">
+          <div className="flex flex-wrap items-center gap-2">
+            {(
+              [
+                { id: "all", label: "All Events", count: sessions.length },
+                { id: "upcoming", label: "Upcoming", count: upcomingCount },
+                { id: "ongoing", label: "Ongoing", count: ongoingCount },
+                { id: "completed", label: "Completed", count: completedCount },
+              ] as const
+            ).map((tab) => {
+              const active = filter === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setFilter(tab.id)}
+                  className={`inline-flex items-center gap-2 rounded-full px-4 py-2 font-mono text-xs uppercase tracking-[0.12em] transition-all duration-300 ${
+                    active
+                      ? "bg-fg text-ink shadow-md"
+                      : "border border-line bg-surface/60 text-muted hover:border-accent hover:text-fg"
+                  }`}
+                >
+                  <span>{tab.label}</span>
+                  <span
+                    className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${
+                      active ? "bg-ink/20 text-ink" : "bg-ink-2 text-muted"
+                    }`}
+                  >
+                    {tab.count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          <span className="font-mono text-xs text-muted">
+            Showing {filtered.length} {filtered.length === 1 ? "event" : "events"}
+          </span>
+        </div>
+
+        {/* ---------------- Events Grid ---------------- */}
+        {filtered.length === 0 ? (
+          <div className="mt-16 flex min-h-[220px] flex-col items-center justify-center rounded-3xl border border-dashed border-line bg-surface/50 p-8 text-center">
+            <p className="font-mono text-sm text-muted">
+              No events found in this category right now.
+            </p>
+            <button
+              onClick={() => setFilter("all")}
+              className="btn btn-ghost mt-4 !py-2 !text-xs"
+            >
+              Show all events
+            </button>
+          </div>
         ) : (
-          <ul
-            data-osf-list
-            className="mt-12 grid gap-4 sm:grid-cols-2 xl:grid-cols-4"
+          <div
+            data-event-grid
+            className="mt-8 flex flex-wrap justify-center gap-6"
           >
-            {upcoming.map((s) => {
-              const { day, month } = formatEventDayMonth(s);
-              const meta = [formatEventTime(s), locationLine(s)]
-                .filter(Boolean)
-                .join("  ·  ");
+            {filtered.map((e) => {
+              const { day, month } = formatEventDayMonth(e);
+              const status = getStatus(e);
+              const isUpcoming = status === "upcoming";
+              const isOngoing = status === "ongoing";
+              const isCompleted = status === "completed";
 
               return (
-                <li
-                  key={s.id}
-                  data-osf-card
-                  className="flex flex-col gap-5 rounded-2xl border p-6 transition-colors duration-300 hover:border-[color:var(--color-primary-soft)]"
-                  style={{
-                    borderColor: "rgba(232,241,245,0.16)",
-                    background: "rgba(232,241,245,0.04)",
-                  }}
+                <article
+                  key={e.id}
+                  data-event-card
+                  className="glass group relative flex flex-col justify-between overflow-hidden rounded-3xl p-6 transition-all duration-500 hover:-translate-y-2 hover:border-accent hover:shadow-[0_24px_64px_-32px_rgba(12,51,70,0.45)] w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] xl:w-[calc(25%-18px)] max-w-[360px]"
                 >
-                  {/* Date + level */}
-                  <div className="flex items-start justify-between gap-4">
-                    <span className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-xl bg-primary font-mono leading-none text-white">
-                      <span className="text-lg font-medium">{day}</span>
-                      <span className="mt-1.5 text-[10px] tracking-[0.14em]">
-                        {month}
-                      </span>
-                    </span>
-                    {s.level && (
-                      <span
-                        className="rounded-full border px-3 py-1 font-mono text-[10px] uppercase tracking-[0.12em]"
-                        style={{
-                          borderColor: "rgba(232,241,245,0.24)",
-                          color: deepMuted,
-                        }}
+                  {/* Top Bar: Date + Status Badge */}
+                  <div>
+                    <div className="flex items-start justify-between gap-3">
+                      {/* Date Badge */}
+                      <div
+                        className={`flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-2xl font-mono leading-none shadow-sm ${
+                          isUpcoming
+                            ? "bg-gradient-to-br from-primary to-primary-dark text-white"
+                            : isOngoing
+                              ? "bg-gradient-to-br from-accent to-accent-dark text-white"
+                              : "bg-ink-2 text-muted"
+                        }`}
                       >
-                        {s.level}
-                      </span>
-                    )}
-                  </div>
+                        <span className="text-lg font-bold">{day}</span>
+                        <span className="mt-1 text-[10px] tracking-[0.14em] uppercase">
+                          {month}
+                        </span>
+                      </div>
 
-                  {/* Title + project */}
-                  <div className="min-w-0">
-                    <h3 className="display text-xl font-semibold leading-snug">
-                      {s.title}
+                      {/* Status Tag */}
+                      <div>
+                        {isUpcoming && (
+                          <span className="inline-flex items-center rounded-full border border-primary/40 bg-primary/10 px-3 py-1 font-mono text-[10px] font-semibold uppercase tracking-wider text-primary-dark">
+                            Upcoming
+                          </span>
+                        )}
+                        {isOngoing && (
+                          <span className="inline-flex items-center rounded-full border border-accent/40 bg-accent/15 px-3 py-1 font-mono text-[10px] font-semibold uppercase tracking-wider text-accent-dark">
+                            Ongoing
+                          </span>
+                        )}
+                        {isCompleted && (
+                          <span className="inline-flex items-center rounded-full bg-ink-2 px-3 py-1 font-mono text-[10px] font-medium uppercase tracking-wider text-muted">
+                            Completed
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Domain / Category Pill */}
+                    <div className="mt-5 flex flex-wrap items-center gap-2">
+                      <span className="rounded-full border border-line bg-ink/70 px-3 py-1 font-mono text-[11px] text-muted">
+                        {e.domain ?? e.level ?? MODE_LABEL[e.mode]}
+                      </span>
+                      {e.project && (
+                        <span className="truncate font-mono text-[11px] text-accent-dark">
+                          #{e.project}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Title */}
+                    <h3 className="display mt-4 text-xl font-bold leading-tight text-fg transition-colors group-hover:text-primary-dark">
+                      {e.title}
                     </h3>
-                    {s.project && (
-                      <p className="mt-2 truncate font-mono text-xs text-[color:var(--color-primary-soft)]">
-                        {s.project}
-                      </p>
-                    )}
-                    {s.summary && (
-                      <p
-                        className="mt-3 text-sm leading-relaxed"
-                        style={{ color: deepMuted }}
-                      >
-                        {s.summary}
-                      </p>
-                    )}
-                  </div>
 
-                  {/* Meta + links */}
-                  <div className="mt-auto flex flex-col gap-3">
-                    {meta && (
-                      <p className="text-xs" style={{ color: deepMuted }}>
-                        {meta}
+                    {/* Meta info */}
+                    <div className="mt-3 flex flex-col gap-1 text-xs text-muted">
+                      <p className="flex items-center gap-2 font-mono">
+                        <span>🕒</span>
+                        <span>{formatEventTime(e) || "18:00 - 20:00 IST"}</span>
                       </p>
-                    )}
-                    {s.hosts[0] && (
-                      <p className="text-xs" style={{ color: deepMuted }}>
-                        Led by{" "}
-                        <span style={{ color: deep }}>{s.hosts[0].name}</span>
+                      <p className="flex items-center gap-2 font-mono">
+                        <span>📍</span>
+                        <span>{locationLine(e) || "Online"}</span>
                       </p>
-                    )}
-
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 pt-1">
-                      {(s.registerUrl || s.joinUrl) && (
-                        <a
-                          href={s.registerUrl ?? s.joinUrl}
-                          target="_blank"
-                          rel="noreferrer noopener"
-                          className="font-mono text-xs text-[color:var(--color-primary-soft)] underline underline-offset-4 transition-colors hover:text-[color:var(--color-accent-soft)]"
-                        >
-                          {s.registerUrl ? "Register" : "Join"}{" "}
-                          <span aria-hidden>{"->"}</span>
-                        </a>
-                      )}
-                      {s.repoUrl && (
-                        <a
-                          href={s.repoUrl}
-                          target="_blank"
-                          rel="noreferrer noopener"
-                          className="font-mono text-xs underline underline-offset-4 transition-colors hover:text-[color:var(--color-accent-soft)]"
-                          style={{ color: deepMuted }}
-                        >
-                          Repo
-                        </a>
-                      )}
-                      {s.issuesUrl && (
-                        <a
-                          href={s.issuesUrl}
-                          target="_blank"
-                          rel="noreferrer noopener"
-                          className="font-mono text-xs underline underline-offset-4 transition-colors hover:text-[color:var(--color-accent-soft)]"
-                          style={{ color: deepMuted }}
-                        >
-                          Good first issues
-                        </a>
+                      {e.hosts[0]?.name && (
+                        <p className="mt-1 text-xs text-muted">
+                          Host: <span className="text-fg font-medium">{e.hosts[0].name}</span>
+                        </p>
                       )}
                     </div>
                   </div>
-                </li>
+
+                  {/* Bottom Action Section */}
+                  <div className="mt-8 border-t border-line/80 pt-4 flex items-center justify-between gap-3">
+                    {isUpcoming ? (
+                      e.registerUrl ? (
+                        <a
+                          href={e.registerUrl}
+                          target="_blank"
+                          rel="noreferrer noopener"
+                          className="btn btn-primary w-full justify-center !py-2.5 !text-xs font-semibold shadow-sm hover:shadow-md"
+                        >
+                          Register Now <span aria-hidden>{"->"}</span>
+                        </a>
+                      ) : (
+                        <a
+                          href="http://membership.descienceosclub.com/"
+                          target="_blank"
+                          rel="noreferrer noopener"
+                          className="btn btn-primary w-full justify-center !py-2.5 !text-xs font-semibold shadow-sm hover:shadow-md"
+                        >
+                          Register <span aria-hidden>{"->"}</span>
+                        </a>
+                      )
+                    ) : isOngoing ? (
+                      e.joinUrl ? (
+                        <a
+                          href={e.joinUrl}
+                          target="_blank"
+                          rel="noreferrer noopener"
+                          className="btn btn-primary w-full justify-center !bg-accent hover:!bg-accent-dark !py-2.5 !text-xs font-semibold"
+                        >
+                          Join Live <span aria-hidden>{"->"}</span>
+                        </a>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => setOpenId(e.id)}
+                          className="btn btn-ghost w-full justify-center !py-2.5 !text-xs"
+                        >
+                          View Details
+                        </button>
+                      )
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => setOpenId(e.id)}
+                        className="btn btn-ghost w-full justify-center !py-2.5 !text-xs text-muted hover:text-fg"
+                      >
+                        {e.recordingUrl ? "Watch Recording" : "View Recap"}
+                      </button>
+                    )}
+                  </div>
+                </article>
               );
             })}
-          </ul>
+          </div>
         )}
       </div>
+
+      {open && <EventModal event={open} onClose={() => setOpenId(null)} />}
     </section>
   );
 }

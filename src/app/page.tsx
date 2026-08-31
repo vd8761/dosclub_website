@@ -28,12 +28,7 @@ import { getEvents, getOpenSourceFridays } from "@/lib/cms";
 export const revalidate = 300;
 
 export default async function Home() {
-  // Two independent Delivery API reads - fire them together rather than
-  // letting the second wait on the first.
-  const [{ events }, { events: ossFridaySessions }] = await Promise.all([
-    getEvents(),
-    getOpenSourceFridays(),
-  ]);
+  const { events: ossFridaySessions } = await getOpenSourceFridays();
 
   return (
     <>
@@ -47,15 +42,12 @@ export default async function Home() {
           <Manifesto />
           <Domains />
           <Journey />
-          <Events events={events} />
           <OpenSourceFriday sessions={ossFridaySessions} />
           <Team />
           <Partners />
           <Faq />
-          <Join />
         </main>
         <Footer />
-        <LoopEnd />
       </SmoothScroll>
     </>
   );
