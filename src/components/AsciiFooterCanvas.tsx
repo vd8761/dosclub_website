@@ -182,13 +182,52 @@ export default function AsciiFooterCanvas() {
         ctx.fillText(p.char, p.x, p.y);
       }
 
-      animationFrameId = requestAnimationFrame(render);
+      if (running) {
+        animationFrameId = requestAnimationFrame(render);
+      }
     };
 
-    render();
+    let onScreen = false;
+    let running = false;
+
+    function startLoop() {
+      if (running) return;
+      running = true;
+      animationFrameId = requestAnimationFrame(render);
+    }
+
+    function stopLoop() {
+      running = false;
+      cancelAnimationFrame(animationFrameId);
+    }
+
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        onScreen = entry.isIntersecting;
+        if (!onScreen) {
+          stopLoop();
+        } else {
+          startLoop();
+        }
+      },
+      { threshold: 0.01 }
+    );
+
+    io.observe(canvas);
+
+    const onVisibility = () => {
+      if (document.hidden) {
+        stopLoop();
+      } else if (onScreen) {
+        startLoop();
+      }
+    };
+    document.addEventListener("visibilitychange", onVisibility);
 
     return () => {
-      cancelAnimationFrame(animationFrameId);
+      stopLoop();
+      io.disconnect();
+      document.removeEventListener("visibilitychange", onVisibility);
       window.removeEventListener("resize", handleResize);
       window.removeEventListener("mousemove", onMouseMove);
       window.removeEventListener("mouseleave", onMouseLeave);

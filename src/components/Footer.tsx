@@ -3,7 +3,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { nav, socials, site } from "@/data/site";
-import AsciiFooterCanvas from "./AsciiFooterCanvas";
 
 export default function Footer() {
   const muted = "var(--color-on-deep-muted)";
@@ -79,9 +78,6 @@ export default function Footer() {
           </p>
         </div>
       </div>
-
-      {/* Full-width 3-in-a-row DOS Club Logo ASCII Art with Magnetic Circular Repulsion Effect */}
-      <AsciiFooterCanvas />
     </footer>
   );
 }

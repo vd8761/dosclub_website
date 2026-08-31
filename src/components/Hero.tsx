@@ -5,7 +5,6 @@ import { useGSAP } from "@gsap/react";
 import { gsap } from "@/lib/gsap";
 import RevealText from "./ui/RevealText";
 import Magnetic from "./ui/Magnetic";
-import AsciiField from "./AsciiField";
 import CodePane from "./CodePane";
 import HeroProof from "./HeroProof";
 import { scrollToSection } from "./SmoothScroll";
@@ -92,8 +91,6 @@ export default function Hero() {
         style={{ "--blob-rgb": "var(--rgb-accent)" } as CSSProperties}
       />
 
-      {/* Interactive ASCII source field (mouse + scroll reactive) */}
-      <AsciiField className="grid-mask absolute inset-0 -z-10" />
 
       <div
         data-hero-content
