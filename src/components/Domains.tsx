@@ -40,14 +40,14 @@ export default function Domains() {
       const isMobile = window.innerWidth < 768;
 
       const tl = gsap.timeline({
-        defaults: { ease: "power2.inOut" },
+        defaults: { ease: "none" },
         scrollTrigger: {
           trigger: root.current,
-          start: isMobile ? "top 8%" : "top 12%",
-          end: () => "+=" + cards.length * (isMobile ? 320 : 280),
+          start: isMobile ? "top 5%" : "top 8%",
+          end: () => "+=" + cards.length * (isMobile ? 220 : 250),
           pin: true,
           pinSpacing: true,
-          scrub: 0.4,
+          scrub: true, // 1:1 direct tracking - completely eliminates ghost scrolling & rubber-band pull
           anticipatePin: 1,
           invalidateOnRefresh: true,
           onUpdate: (self) => {

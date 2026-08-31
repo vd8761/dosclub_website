@@ -107,29 +107,30 @@ export default function Hero() {
             />
           </div>
 
-          {/* Next-event ribbon */}
+          {/* Next-event ribbon - compact, mobile-optimised pill */}
           {nextEvent && (
-            <button
-              data-hero-fade
-              onClick={() => scrollToSection("#events")}
-              className="group mb-6 inline-flex cursor-pointer items-center gap-3 rounded-full border border-line bg-surface/90 px-5 py-2.5 text-left shadow-sm backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-accent hover:bg-surface hover:shadow-md"
-            >
-              <span className="font-mono text-xs font-bold uppercase tracking-[0.14em] text-primary-dark">
-                Next up
-              </span>
-              <span className="text-sm sm:text-base font-semibold text-fg group-hover:text-accent-dark">
-                {nextEvent.title}
-              </span>
-              <span className="font-mono text-xs text-muted">
-                {nextEvent.date}
-              </span>
-              <span
-                aria-hidden
-                className="font-mono text-xs text-primary transition-transform duration-300 group-hover:translate-x-0.5"
+            <div data-hero-fade className="mb-6 flex">
+              <button
+                onClick={() => scrollToSection("#events")}
+                className="group inline-flex max-w-full cursor-pointer items-center flex-wrap gap-x-3 gap-y-1 rounded-2xl sm:rounded-full border border-line bg-surface/90 px-4 py-2 sm:px-5 sm:py-2.5 text-left shadow-sm backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-accent hover:bg-surface hover:shadow-md"
               >
-                {"->"}
-              </span>
-            </button>
+                <span className="font-mono text-[11px] sm:text-xs font-bold uppercase tracking-[0.14em] text-primary-dark">
+                  Next up
+                </span>
+                <span className="text-xs sm:text-sm md:text-base font-semibold text-fg group-hover:text-accent-dark">
+                  {nextEvent.title}
+                </span>
+                <span className="font-mono text-[11px] sm:text-xs text-muted">
+                  {nextEvent.date}
+                </span>
+                <span
+                  aria-hidden
+                  className="font-mono text-xs text-primary transition-transform duration-300 group-hover:translate-x-0.5"
+                >
+                  {"->"}
+                </span>
+              </button>
+            </div>
           )}
 
           <h1 className="display max-w-[14ch] text-6xl sm:text-7xl md:text-8xl lg:text-7xl xl:text-8xl 2xl:text-[6.5rem] leading-[0.96] tracking-tight font-bold">
