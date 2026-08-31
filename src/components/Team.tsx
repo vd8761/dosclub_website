@@ -102,7 +102,7 @@ export default function Team() {
               </p>
             </div>
             <a
-              href="/enquiry"
+              href="/enquiry?role=trainers"
               className="label mt-6 inline-flex items-center gap-2 text-fg hover:text-primary transition-colors"
             >
               Reach out <span className="text-primary">{"->"}</span>

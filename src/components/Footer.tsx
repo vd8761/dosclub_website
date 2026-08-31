@@ -1,8 +1,9 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { nav, socials, site } from "@/data/site";
-import { scrollToSection } from "./SmoothScroll";
+import AsciiFooterCanvas from "./AsciiFooterCanvas";
 
 export default function Footer() {
   const muted = "var(--color-on-deep-muted)";
@@ -12,8 +13,8 @@ export default function Footer() {
       <div className="container-x py-8">
         {/* Single row: identity | nav | contact */}
         <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-          <button
-            onClick={() => scrollToSection("#top")}
+          <Link
+            href="/"
             className="inline-flex shrink-0 items-center gap-2"
             aria-label="Back to top"
           >
@@ -27,18 +28,18 @@ export default function Footer() {
             <span className="font-display text-sm font-semibold">
               {site.name}
             </span>
-          </button>
+          </Link>
 
           <nav className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
             {nav.map((n) => (
-              <button
+              <Link
                 key={n.href}
-                onClick={() => scrollToSection(n.href)}
+                href={`/${n.href}`}
                 className="transition-colors hover:text-[color:var(--color-on-deep)]"
                 style={{ color: muted }}
               >
                 {n.label}
-              </button>
+              </Link>
             ))}
           </nav>
 
@@ -66,13 +67,21 @@ export default function Footer() {
         </div>
 
         {/* Hairline legal strip */}
-        <p
-          className="mt-6 border-t pt-4 text-center text-xs md:text-left"
+        <div
+          className="mt-6 border-t pt-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs"
           style={{ borderColor: "rgba(255,255,255,0.1)", color: muted }}
         >
-          (c) {new Date().getFullYear()} {site.name}. Built in the open.
-        </p>
+          <p className="text-center sm:text-left">
+            (c) {new Date().getFullYear()} {site.name}. Built in the open.
+          </p>
+          <p className="font-mono text-[10.5px] tracking-wider text-muted">
+            DESCIENCE OPEN SOURCE CLUB // COMMUNITY
+          </p>
+        </div>
       </div>
+
+      {/* Full-width 3-in-a-row DOS Club Logo ASCII Art with Magnetic Circular Repulsion Effect */}
+      <AsciiFooterCanvas />
     </footer>
   );
 }

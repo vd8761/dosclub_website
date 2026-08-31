@@ -1,9 +1,11 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, Suspense, useEffect, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { site, socials, domains } from "@/data/site";
 import RevealText from "@/components/ui/RevealText";
+import Footer from "@/components/Footer";
 
 type Category = "students" | "institutions" | "trainers" | "sponsors";
 
@@ -53,8 +55,22 @@ const EXPERIENCE = ["Just starting", "Some projects", "Comfortable shipping"];
 
 type Status = "idle" | "sending" | "sent" | "error";
 
-export default function EnquiryPage() {
+function EnquiryFormContent() {
+  const searchParams = useSearchParams();
   const [activeCategory, setActiveCategory] = useState<Category | null>(null);
+
+  useEffect(() => {
+    const roleParam = searchParams.get("role") || searchParams.get("type");
+    if (roleParam) {
+      const match = CATEGORIES.find(
+        (c) => c.id === roleParam.toLowerCase() || c.label.toLowerCase().includes(roleParam.toLowerCase())
+      );
+      if (match) {
+        setActiveCategory(match.id);
+      }
+    }
+  }, [searchParams]);
+
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState("");
   const [copySent, setCopySent] = useState(true);
@@ -582,6 +598,15 @@ export default function EnquiryPage() {
           </div>
         </div>
       </div>
+      <Footer />
     </main>
+  );
+}
+
+export default function EnquiryPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-ink" />}>
+      <EnquiryFormContent />
+    </Suspense>
   );
 }
