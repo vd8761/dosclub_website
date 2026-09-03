@@ -8,7 +8,7 @@ import EventModal from "./EventModal";
 import {
   formatEventDayMonth,
   formatEventTime,
-  isPast,
+  getEventStatus,
   locationLine,
   MODE_LABEL,
   type ClubEvent,
@@ -71,11 +71,8 @@ export default function OpenSourceFriday({
     { scope: root, dependencies: [sessions.length, filter] },
   );
 
-  const getStatus = (e: ClubEvent): "upcoming" | "ongoing" | "completed" => {
-    if (e.status === "completed" || isPast(e)) return "completed";
-    if (e.status === "live") return "ongoing";
-    return "upcoming";
-  };
+  const getStatus = (e: ClubEvent): "upcoming" | "ongoing" | "completed" =>
+    getEventStatus(e);
 
   const filtered = sessions.filter((e) => {
     if (filter === "all") return true;

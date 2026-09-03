@@ -23,7 +23,14 @@ import {
 import { events as fallbackEvents, ossFridays } from "@/data/site";
 import { DEFAULT_TZ } from "./events";
 
-const API_URL = process.env.CMS_API_URL?.replace(/\/+$/, "");
+const DEFAULT_PROD_URL = "https://touchmark-website-cms.onrender.com";
+const rawUrl = process.env.CMS_API_URL;
+const API_URL = (
+  rawUrl && (process.env.NODE_ENV !== "production" || !rawUrl.includes("localhost"))
+    ? rawUrl
+    : DEFAULT_PROD_URL
+).replace(/\/+$/, "");
+
 const API_KEY = process.env.CMS_API_KEY;
 
 /** Content type API IDs in the CMS. Override if you name them differently. */
@@ -85,7 +92,7 @@ function setCached(key: string, data: ClubEvent[]): void {
   writeDiskCache(key, data);
 }
 
-const CMS_TIMEOUT_MS = 2500;
+const CMS_TIMEOUT_MS = Number(process.env.CMS_TIMEOUT_MS) || 6000;
 
 /**
  * Fetches one content type and maps it onto `ClubEvent`.

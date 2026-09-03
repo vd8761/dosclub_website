@@ -125,8 +125,27 @@ export function formatEventTime(e: ClubEvent): string {
 }
 
 export function isPast(e: ClubEvent): boolean {
-  const d = parse(e.endAt) ?? parse(e.startAt);
-  return d ? d.getTime() < Date.now() : false;
+  const end = parse(e.endAt);
+  if (end) return end.getTime() < Date.now();
+  const start = parse(e.startAt);
+  return start ? start.getTime() < Date.now() : false;
+}
+
+export function getEventStatus(
+  e: ClubEvent,
+): "upcoming" | "ongoing" | "completed" {
+  if (e.status === "completed") return "completed";
+  if (e.status === "ongoing" || e.status === "live") return "ongoing";
+
+  const now = Date.now();
+  const start = parse(e.startAt)?.getTime();
+  const end = parse(e.endAt)?.getTime();
+
+  if (end && now > end) return "completed";
+  if (start && now >= start && (!end || now <= end)) return "ongoing";
+  if (start && now < start) return "upcoming";
+  if (isPast(e)) return "completed";
+  return "upcoming";
 }
 
 export const MODE_LABEL: Record<EventMode, string> = {
@@ -220,6 +239,8 @@ const STATUSES = new Set<EventStatus>([
   "full",
   "cancelled",
   "completed",
+  "ongoing",
+  "live",
 ]);
 
 /** A single entry from `GET /v1/content/event`. */
@@ -284,13 +305,26 @@ export function mapEntry(entry: DeliveryEntry): ClubEvent | null {
   };
 }
 
-/** Upcoming first (soonest to furthest), then past (most recent first). */
+/** Ongoing first, then upcoming (soonest to furthest), then past (most recent first). */
 export function sortEvents(list: ClubEvent[]): ClubEvent[] {
   const time = (e: ClubEvent) =>
     parse(e.startAt)?.getTime() ?? Number.MAX_SAFE_INTEGER;
-  const upcoming = list
-    .filter((e) => !isPast(e))
+
+  const ongoing = list
+    .filter((e) => getEventStatus(e) === "ongoing")
     .sort((a, b) => time(a) - time(b));
-  const past = list.filter(isPast).sort((a, b) => time(b) - time(a));
-  return [...upcoming, ...past];
+
+  const upcoming = list
+    .filter((e) => getEventStatus(e) === "upcoming")
+    .sort((a, b) => time(a) - time(b));
+
+  const past = list
+    .filter((e) => getEventStatus(e) === "completed")
+    .sort(
+      (a, b) =>
+        (parse(b.endAt)?.getTime() ?? time(b)) -
+        (parse(a.endAt)?.getTime() ?? time(a)),
+    );
+
+  return [...ongoing, ...upcoming, ...past];
 }
