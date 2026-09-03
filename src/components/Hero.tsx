@@ -8,26 +8,19 @@ import Magnetic from "./ui/Magnetic";
 import CodePane from "./CodePane";
 import HeroProof from "./HeroProof";
 import { scrollToSection } from "./SmoothScroll";
-import { events } from "@/data/site";
+import {
+  formatEventDate,
+  getHeroRibbonEvent,
+  type ClubEvent,
+} from "@/lib/events";
 
-/**
- * ============================================================================
- * TODO: HERO EVENT STATUS RIBBON SPECIFICATION
- * ============================================================================
- * The "Next up" badge in the Hero section displays live event status with strict rules:
- *
- * 1. ONLY display this badge if there is an "Ongoing" or "Upcoming" event available.
- * 2. If ONLY past/completed events exist in the CMS, do NOT show the Hero event badge at all.
- * 3. If CMS is DOWN or unconfigured, do NOT show the Hero event badge.
- * 4. When visible, clicking smooth-scrolls the user down to the #events section.
- * ============================================================================
- */
-
-/** The ribbon reads the top of the events list - keep events[0] current. */
-const nextEvent = events[0];
-
-export default function Hero() {
+export default function Hero({
+  sessions,
+}: {
+  sessions?: ClubEvent[];
+}) {
   const root = useRef<HTMLElement>(null);
+  const heroRibbon = getHeroRibbonEvent(sessions);
 
   useGSAP(
     () => {
@@ -106,21 +99,28 @@ export default function Hero() {
             />
           </div>
 
-          {/* Next-event ribbon - compact, mobile-optimised pill */}
-          {nextEvent && (
+          {/* Next-event / Ongoing ribbon - displays live status or hides if none */}
+          {heroRibbon && (
             <div data-hero-fade className="mb-4 lg:mb-5 flex">
               <button
                 onClick={() => scrollToSection("#events")}
                 className="group inline-flex max-w-full cursor-pointer items-center flex-wrap gap-x-3 gap-y-1 rounded-2xl sm:rounded-full border border-line bg-surface/90 px-3.5 py-1.5 sm:px-4 sm:py-2 text-left shadow-sm backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-accent hover:bg-surface hover:shadow-md"
               >
-                <span className="font-mono text-[10.5px] sm:text-xs font-bold uppercase tracking-[0.14em] text-primary-dark">
-                  Next up
-                </span>
+                {heroRibbon.isOngoing ? (
+                  <span className="inline-flex items-center gap-1.5 font-mono text-[10.5px] sm:text-xs font-bold uppercase tracking-[0.14em] text-accent-dark">
+                    <span className="h-2 w-2 rounded-full bg-accent animate-pulse" />
+                    Ongoing
+                  </span>
+                ) : (
+                  <span className="font-mono text-[10.5px] sm:text-xs font-bold uppercase tracking-[0.14em] text-primary-dark">
+                    Next up
+                  </span>
+                )}
                 <span className="text-xs sm:text-sm font-semibold text-fg group-hover:text-accent-dark">
-                  {nextEvent.title}
+                  {heroRibbon.event.title}
                 </span>
                 <span className="font-mono text-[10.5px] sm:text-xs text-muted">
-                  {nextEvent.date}
+                  {formatEventDate(heroRibbon.event)}
                 </span>
                 <span
                   aria-hidden

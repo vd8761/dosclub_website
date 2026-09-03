@@ -33,7 +33,7 @@ export default async function Home() {
       <Navbar />
       <SmoothScroll>
         <main>
-          <Hero />
+          <Hero sessions={sessions} />
           <Marquee />
           <About />
           <Stats />

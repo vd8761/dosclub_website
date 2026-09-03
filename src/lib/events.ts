@@ -390,3 +390,43 @@ export function selectFeaturedEvents(sessions: ClubEvent[]): FeaturedCardItem[] 
   return combined.slice(0, 3);
 }
 
+export type HeroRibbonEvent = {
+  event: ClubEvent;
+  isOngoing: boolean;
+};
+
+/**
+ * Determines the event to feature on the Hero ribbon:
+ * 1. If an ongoing event exists, returns { event, isOngoing: true }
+ * 2. Else if an upcoming event exists, returns { event, isOngoing: false }
+ * 3. If neither exists (only completed or none), returns null
+ */
+export function getHeroRibbonEvent(sessions?: ClubEvent[]): HeroRibbonEvent | null {
+  if (!sessions || sessions.length === 0) return null;
+
+  const time = (e: ClubEvent) =>
+    parse(e.startAt)?.getTime() ?? Number.MAX_SAFE_INTEGER;
+
+  // 1. Ongoing event available?
+  const ongoing = sessions
+    .filter((e) => getEventStatus(e) === "ongoing")
+    .sort((a, b) => time(a) - time(b));
+
+  if (ongoing.length > 0) {
+    return { event: ongoing[0], isOngoing: true };
+  }
+
+  // 2. Upcoming event available?
+  const upcoming = sessions
+    .filter((e) => getEventStatus(e) === "upcoming")
+    .sort((a, b) => time(a) - time(b));
+
+  if (upcoming.length > 0) {
+    return { event: upcoming[0], isOngoing: false };
+  }
+
+  // 3. No ongoing or upcoming events
+  return null;
+}
+
+
