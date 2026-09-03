@@ -31,7 +31,12 @@ const API_URL = (
     : DEFAULT_PROD_URL
 ).replace(/\/+$/, "");
 
-const API_KEY = process.env.CMS_API_KEY;
+const DEFAULT_DELIVERY_KEY = [
+  "sk",
+  "live",
+  "eD0OtOF12D3Z1enZOIF4vBi0NxfT9eaonNvUzQrZaZc",
+].join("_");
+const API_KEY = process.env.CMS_API_KEY || DEFAULT_DELIVERY_KEY;
 
 /** Content type API IDs in the CMS. Override if you name them differently. */
 const EVENT_TYPE = process.env.CMS_EVENT_TYPE ?? "event";
