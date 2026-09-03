@@ -71,7 +71,7 @@ export default function Hero() {
     <section
       id="top"
       ref={root}
-      className="relative flex min-h-[100svh] w-full flex-col justify-center overflow-hidden pt-24 pb-16 md:pt-28 md:pb-16 lg:py-0"
+      className="relative flex min-h-[100svh] w-full flex-col justify-center overflow-hidden pt-24 pb-12 sm:pt-28 sm:pb-16 lg:py-16 xl:py-20"
     >
       {/* Structural grid - gives the empty space a reason to be there */}
       <div
@@ -91,36 +91,35 @@ export default function Hero() {
         style={{ "--blob-rgb": "var(--rgb-accent)" } as CSSProperties}
       />
 
-
       <div
         data-hero-content
-        className="mx-auto w-full max-w-[1720px] px-6 sm:px-12 lg:px-16 relative z-10 grid items-center gap-12 lg:grid-cols-12 lg:gap-12 xl:gap-20 2xl:gap-24"
+        className="mx-auto w-full max-w-[1560px] px-6 sm:px-10 lg:px-12 xl:px-16 relative z-10 grid items-center gap-8 lg:grid-cols-12 lg:gap-8 xl:gap-12 2xl:gap-16"
       >
         {/* ---------------- Left: the pitch ---------------- */}
         <div className="lg:col-span-7 2xl:col-span-7">
-          <div data-hero-fade className="mb-6">
+          <div data-hero-fade className="mb-4 lg:mb-5">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/logo.webp"
               alt="Descience Open Source Club"
-              className="h-16 w-auto sm:h-20 lg:h-20 2xl:h-24"
+              className="h-12 w-auto sm:h-14 md:h-16 lg:h-14 xl:h-18 2xl:h-20"
             />
           </div>
 
           {/* Next-event ribbon - compact, mobile-optimised pill */}
           {nextEvent && (
-            <div data-hero-fade className="mb-6 flex">
+            <div data-hero-fade className="mb-4 lg:mb-5 flex">
               <button
                 onClick={() => scrollToSection("#events")}
-                className="group inline-flex max-w-full cursor-pointer items-center flex-wrap gap-x-3 gap-y-1 rounded-2xl sm:rounded-full border border-line bg-surface/90 px-4 py-2 sm:px-5 sm:py-2.5 text-left shadow-sm backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-accent hover:bg-surface hover:shadow-md"
+                className="group inline-flex max-w-full cursor-pointer items-center flex-wrap gap-x-3 gap-y-1 rounded-2xl sm:rounded-full border border-line bg-surface/90 px-3.5 py-1.5 sm:px-4 sm:py-2 text-left shadow-sm backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-accent hover:bg-surface hover:shadow-md"
               >
-                <span className="font-mono text-[11px] sm:text-xs font-bold uppercase tracking-[0.14em] text-primary-dark">
+                <span className="font-mono text-[10.5px] sm:text-xs font-bold uppercase tracking-[0.14em] text-primary-dark">
                   Next up
                 </span>
-                <span className="text-xs sm:text-sm md:text-base font-semibold text-fg group-hover:text-accent-dark">
+                <span className="text-xs sm:text-sm font-semibold text-fg group-hover:text-accent-dark">
                   {nextEvent.title}
                 </span>
-                <span className="font-mono text-[11px] sm:text-xs text-muted">
+                <span className="font-mono text-[10.5px] sm:text-xs text-muted">
                   {nextEvent.date}
                 </span>
                 <span
@@ -133,7 +132,7 @@ export default function Hero() {
             </div>
           )}
 
-          <h1 className="display max-w-[14ch] text-6xl sm:text-7xl md:text-8xl lg:text-7xl xl:text-8xl 2xl:text-[6.5rem] leading-[0.96] tracking-tight font-bold">
+          <h1 className="display max-w-[15ch] text-4xl sm:text-5xl md:text-6xl lg:text-5xl xl:text-6xl 2xl:text-7xl leading-[1.04] sm:leading-[1.0] lg:leading-[0.98] tracking-tight font-bold">
             <RevealText
               text="Learn. Build."
               as="span"
@@ -150,7 +149,7 @@ export default function Hero() {
 
           <p
             data-hero-fade
-            className="mt-6 max-w-2xl text-base leading-relaxed text-muted sm:text-lg lg:text-xl"
+            className="mt-4 lg:mt-5 max-w-xl text-sm sm:text-base lg:text-base xl:text-lg leading-relaxed text-muted"
           >
             A student-driven community where curious minds become confident
             builders - through workshops, real projects and the open source
@@ -159,14 +158,14 @@ export default function Hero() {
 
           <div
             data-hero-fade
-            className="mt-8 flex flex-wrap items-center gap-4"
+            className="mt-6 lg:mt-7 flex flex-wrap items-center gap-3 sm:gap-4"
           >
             <Magnetic>
               <a
                 href="http://membership.descienceosclub.com/"
                 target="_blank"
                 rel="noreferrer"
-                className="btn btn-primary !py-4 !px-9 text-base font-semibold shadow-lg"
+                className="btn btn-primary !py-3 !px-7 sm:!py-3.5 sm:!px-8 text-sm sm:text-base font-semibold shadow-lg"
               >
                 Join the club
                 <span aria-hidden>{"->"}</span>
@@ -175,7 +174,7 @@ export default function Hero() {
             <Magnetic>
               <button
                 onClick={() => scrollToSection("#domains")}
-                className="btn btn-ghost !py-4 !px-9 text-base font-semibold"
+                className="btn btn-ghost !py-3 !px-7 sm:!py-3.5 sm:!px-8 text-sm sm:text-base font-semibold"
               >
                 Explore domains
               </button>
@@ -183,13 +182,13 @@ export default function Hero() {
           </div>
 
           {/* Social proof, above the fold */}
-          <div data-hero-fade className="mt-10">
+          <div data-hero-fade className="mt-6 lg:mt-8">
             <HeroProof />
           </div>
         </div>
 
         {/* ---------------- Right: the artifact (desktop only) ---------------- */}
-        <div data-hero-fade data-hero-pane className="hidden lg:block lg:col-span-5 2xl:col-span-5 w-full">
+        <div data-hero-fade data-hero-pane className="hidden lg:block lg:col-span-5 2xl:col-span-5 w-full max-w-md xl:max-w-none justify-self-end">
           <CodePane />
 
           <div className="label mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs sm:text-sm font-semibold">

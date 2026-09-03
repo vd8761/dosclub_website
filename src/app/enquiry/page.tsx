@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { site, socials, domains } from "@/data/site";
 import RevealText from "@/components/ui/RevealText";
 import Footer from "@/components/Footer";
+import TurnstileWidget from "@/components/TurnstileWidget";
 
 type Category = "students" | "institutions" | "trainers" | "sponsors";
 
@@ -74,6 +75,7 @@ function EnquiryFormContent() {
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState("");
   const [copySent, setCopySent] = useState(true);
+  const [turnstileToken, setTurnstileToken] = useState<string>("");
 
   const [form, setForm] = useState({
     name: "",
@@ -96,6 +98,11 @@ function EnquiryFormContent() {
     e.preventDefault();
     if (status === "sending") return;
 
+    if (!turnstileToken) {
+      setError("Please complete the 'I am not a robot' security check below.");
+      return;
+    }
+
     setStatus("sending");
     setError("");
 
@@ -111,6 +118,7 @@ function EnquiryFormContent() {
           category: categoryName,
           interests: activeCategory === "students" ? interests : undefined,
           experience: activeCategory === "students" ? form.experience : undefined,
+          turnstileToken,
         }),
       });
 
@@ -568,6 +576,22 @@ function EnquiryFormContent() {
                     </div>
                   </div>
 
+                  {/* Cloudflare Turnstile "I'm not a robot" Captcha */}
+                  <div className="border-t border-line/60 pt-6">
+                    <TurnstileWidget
+                      onVerify={(token) => {
+                        setTurnstileToken(token);
+                        setError("");
+                      }}
+                      onExpire={() => setTurnstileToken("")}
+                      onError={() =>
+                        setError(
+                          "Security check failed to initialize. Please reload the page.",
+                        )
+                      }
+                    />
+                  </div>
+
                   {/* Error display */}
                   {status === "error" && error && (
                     <div
@@ -579,11 +603,11 @@ function EnquiryFormContent() {
                   )}
 
                   {/* Submission Row */}
-                  <div className="border-t border-line/60 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4">
                     <button
                       type="submit"
-                      disabled={sending}
-                      className="w-full sm:w-auto inline-flex items-center justify-center gap-3 rounded-full bg-primary-dark px-8 py-4 font-mono text-xs font-bold uppercase tracking-wider text-white shadow-lg transition-all duration-200 hover:bg-primary hover:shadow-primary/25 disabled:opacity-60"
+                      disabled={sending || !turnstileToken}
+                      className="w-full sm:w-auto inline-flex items-center justify-center gap-3 rounded-full bg-primary-dark px-8 py-4 font-mono text-xs font-bold uppercase tracking-wider text-white shadow-lg transition-all duration-200 hover:bg-primary hover:shadow-primary/25 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <span>{sending ? "Processing..." : "Submit Application"}</span>
                       <span>→</span>

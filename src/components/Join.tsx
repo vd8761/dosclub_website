@@ -4,6 +4,7 @@ import { FormEvent, useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "@/lib/gsap";
 import { site, socials, domains } from "@/data/site";
+import TurnstileWidget from "./TurnstileWidget";
 
 const STEPS = [
   {
@@ -39,6 +40,7 @@ export default function Join() {
   const [error, setError] = useState("");
   /** False when the enquiry reached us but the courtesy copy bounced. */
   const [copySent, setCopySent] = useState(true);
+  const [turnstileToken, setTurnstileToken] = useState<string>("");
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -79,6 +81,11 @@ export default function Join() {
     e.preventDefault();
     if (status === "sending") return;
 
+    if (!turnstileToken) {
+      setError("Please complete the 'I am not a robot' security check below.");
+      return;
+    }
+
     setStatus("sending");
     setError("");
 
@@ -86,7 +93,7 @@ export default function Join() {
       const res = await fetch("/api/enquiry", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, interests }),
+        body: JSON.stringify({ ...form, interests, turnstileToken }),
       });
 
       const body = (await res.json().catch(() => null)) as {
@@ -365,6 +372,22 @@ export default function Join() {
                     />
                   </div>
 
+                  {/* Cloudflare Turnstile "I'm not a robot" Captcha */}
+                  <div className="pt-2">
+                    <TurnstileWidget
+                      onVerify={(token) => {
+                        setTurnstileToken(token);
+                        setError("");
+                      }}
+                      onExpire={() => setTurnstileToken("")}
+                      onError={() =>
+                        setError(
+                          "Security check failed to initialize. Please reload.",
+                        )
+                      }
+                    />
+                  </div>
+
                   {/* Errors are announced, not just shown. */}
                   {status === "error" && error && (
                     <p
@@ -375,12 +398,12 @@ export default function Join() {
                     </p>
                   )}
 
-                  <div className="flex flex-wrap items-center gap-4">
+                  <div className="flex flex-wrap items-center gap-4 pt-2">
                     <button
                       type="submit"
-                      disabled={sending}
+                      disabled={sending || !turnstileToken}
                       aria-busy={sending}
-                      className="btn btn-primary disabled:cursor-not-allowed disabled:opacity-60"
+                      className="btn btn-primary disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       {sending ? (
                         "Sending..."
