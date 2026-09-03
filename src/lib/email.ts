@@ -262,7 +262,7 @@ export function adminEmail(e: Enquiry) {
   return {
     subject,
     html: renderShell(
-      "/ 04 - Incoming Enquiry",
+      "/ Incoming Enquiry",
       `New enquiry received from ${e.name}`,
       `A visitor has submitted an enquiry through the DOSClub website. Details are outlined below:`,
       renderSummaryTable(e),
