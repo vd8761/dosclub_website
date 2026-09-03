@@ -28,6 +28,7 @@ import { getEvents, getOpenSourceFridays } from "@/lib/cms";
 export const revalidate = 300;
 
 export default async function Home() {
+  const { events } = await getEvents();
   const { events: ossFridaySessions } = await getOpenSourceFridays();
 
   return (
@@ -42,6 +43,7 @@ export default async function Home() {
           <Manifesto />
           <Domains />
           <Journey />
+          <Events events={events} />
           <OpenSourceFriday sessions={ossFridaySessions} />
           <Team />
           <Partners />
