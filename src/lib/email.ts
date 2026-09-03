@@ -149,6 +149,8 @@ export type Enquiry = {
   interests?: string[];
 };
 
+const DOMAIN = "https://descienceosclub.com";
+
 function renderShell(badge: string, heading: string, intro: string, contentHtml: string, actionHtml?: string): string {
   return `<!doctype html>
 <html lang="en">
@@ -183,8 +185,8 @@ function renderShell(badge: string, heading: string, intro: string, contentHtml:
     <div style="padding:20px 36px;background-color:#091924;border-top:1px solid #162f3e;font-size:12px;color:#6d8494;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;">
       <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
         <span>${esc(site.name)}</span>
-        <a href="${esc(site.url)}" target="_blank" style="color:#14b8a6;text-decoration:none;font-weight:600;">
-          ${esc(site.url.replace(/^https?:\/\//, ""))} &rarr;
+        <a href="${DOMAIN}" target="_blank" style="color:#14b8a6;text-decoration:none;font-weight:600;">
+          ${DOMAIN.replace(/^https?:\/\//, "")} &rarr;
         </a>
       </div>
     </div>
@@ -314,7 +316,7 @@ export function enquirerEmail(e: Enquiry) {
       `If you have questions, reply to this email or write to ${ADMIN_EMAIL}.`,
       "",
       `- ${site.name}`,
-      site.url,
+      DOMAIN,
     ].join("\n"),
   };
 }
