@@ -241,7 +241,7 @@ export function mapEntry(entry: DeliveryEntry): ClubEvent | null {
       ? (rawMode as EventMode)
       : "in_person";
 
-  const rawStatus = str(d.status);
+  const rawStatus = str(d.event_status) ?? str(d.status);
   const status: EventStatus =
     rawStatus && STATUSES.has(rawStatus as EventStatus)
       ? (rawStatus as EventStatus)

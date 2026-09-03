@@ -325,10 +325,11 @@ export default function OpenSourceFriday({
                     ) : (
                       <button
                         type="button"
-                        onClick={() => setOpenId(e.id)}
-                        className="btn btn-ghost w-full justify-center !py-2.5 !text-xs text-muted hover:text-fg"
+                        disabled
+                        aria-disabled="true"
+                        className="btn btn-ghost w-full justify-center !py-2.5 !text-xs !cursor-not-allowed opacity-60 border border-line/60 bg-ink-2/40 text-muted"
                       >
-                        {e.recordingUrl ? "Watch Recording" : "View Recap"}
+                        Closed
                       </button>
                     )}
                   </div>
