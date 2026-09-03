@@ -85,11 +85,14 @@ function setCached(key: string, data: ClubEvent[]): void {
   writeDiskCache(key, data);
 }
 
+const CMS_TIMEOUT_MS = 2500;
+
 /**
  * Fetches one content type and maps it onto `ClubEvent`.
  *
- * Returns `null` on every failure path so each caller can decide what its
- * own fallback should be.
+ * Uses a fail-fast 2.5s timeout so a sleeping Render instance (takes 50s)
+ * never hangs page requests or causes Vercel 504 timeouts. Instead, it
+ * immediately falls back to the last known cached data.
  */
 async function fetchType(
   type: string,
@@ -107,8 +110,9 @@ async function fetchType(
 
     const res = await fetch(url, {
       headers: { Authorization: `Bearer ${API_KEY}` },
-      // Check for updates in the background every 60s when visited
-      next: { revalidate: 60, tags: ["cms-events", `cms-${type}`] },
+      signal: AbortSignal.timeout(CMS_TIMEOUT_MS),
+      // 24 hours fallback; revalidations are triggered on-demand via webhooks
+      next: { revalidate: 86400, tags: ["cms-events", `cms-${type}`] },
     });
 
     if (!res.ok) {
@@ -134,11 +138,21 @@ async function fetchType(
 
     return { events: mapped, source: "cms" };
   } catch (err) {
-    console.error(`[cms] ${type} request threw:`, err);
+    const isTimeout =
+      (err as Error).name === "TimeoutError" ||
+      (err as Error).name === "AbortError";
+    if (isTimeout) {
+      console.warn(
+        `[cms] ${type} request timed out after ${CMS_TIMEOUT_MS}ms (CMS sleeping or slow).`,
+      );
+    } else {
+      console.error(`[cms] ${type} request threw:`, err);
+    }
+
     const cached = getCached(type);
     if (cached) {
       console.log(
-        `[cms] Serving ${cached.length} cached events for ${type} (CMS unreachable)`,
+        `[cms] Serving ${cached.length} cached events for ${type} (${isTimeout ? "CMS sleeping" : "CMS unreachable"})`,
       );
       return { events: cached, source: "cache" };
     }

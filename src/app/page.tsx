@@ -17,11 +17,11 @@ import LoopEnd from "@/components/LoopEnd";
 import { getEvents, getOpenSourceFridays } from "@/lib/cms";
 
 /**
- * Re-render the page in the background every 60 seconds when visited.
- * If CMS is available, fresh events are pulled; if CMS is unreachable,
- * cached data is served.
+ * Vercel Edge Cache: 24-hour fallback.
+ * Primary revalidations are triggered on-demand via webhooks (/api/revalidate)
+ * whenever events are published in the CMS, so regular visitors never wake up Render.
  */
-export const revalidate = 60;
+export const revalidate = 86400;
 
 export default async function Home() {
   const { events } = await getEvents();
