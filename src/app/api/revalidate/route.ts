@@ -44,6 +44,7 @@ async function handleRevalidate(req: NextRequest) {
     // 1. Invalidate Vercel edge data cache
     revalidateTag(tag, "default");
     revalidatePath("/");
+    revalidatePath("/events");
 
     // 2. Eagerly prime the cache while the CMS is awake from the admin's action
     const fresh = await getEvents().catch(() => null);
