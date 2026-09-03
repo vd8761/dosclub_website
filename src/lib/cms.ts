@@ -10,6 +10,10 @@
  * exposed with a NEXT_PUBLIC_ prefix.
  */
 
+import fs from "node:fs";
+import path from "node:path";
+import os from "node:os";
+
 import {
   mapEntry,
   sortEvents,
@@ -33,8 +37,53 @@ type DeliveryList = { data?: DeliveryEntry[] };
 
 export type EventsResult = {
   events: ClubEvent[];
-  source: "cms" | "fallback";
+  source: "cms" | "cache" | "fallback";
 };
+
+const CACHE_DIR = path.join(os.tmpdir(), "dosclub-cms-cache");
+
+declare global {
+  // eslint-disable-next-line no-var
+  var __cmsMemoryCache: Map<string, ClubEvent[]> | undefined;
+}
+const memoryCache = (globalThis.__cmsMemoryCache ??= new Map<string, ClubEvent[]>());
+
+function readDiskCache(key: string): ClubEvent[] | null {
+  try {
+    const filePath = path.join(CACHE_DIR, `${key}.json`);
+    if (fs.existsSync(filePath)) {
+      const raw = fs.readFileSync(filePath, "utf-8");
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed;
+      }
+    }
+  } catch (err) {
+    console.warn(`[cms] could not read disk cache for ${key}:`, err);
+  }
+  return null;
+}
+
+function writeDiskCache(key: string, data: ClubEvent[]): void {
+  try {
+    if (!fs.existsSync(CACHE_DIR)) {
+      fs.mkdirSync(CACHE_DIR, { recursive: true });
+    }
+    const filePath = path.join(CACHE_DIR, `${key}.json`);
+    fs.writeFileSync(filePath, JSON.stringify(data), "utf-8");
+  } catch (err) {
+    console.warn(`[cms] could not write disk cache for ${key}:`, err);
+  }
+}
+
+function getCached(key: string): ClubEvent[] | null {
+  return memoryCache.get(key) ?? readDiskCache(key);
+}
+
+function setCached(key: string, data: ClubEvent[]): void {
+  memoryCache.set(key, data);
+  writeDiskCache(key, data);
+}
 
 /**
  * Fetches one content type and maps it onto `ClubEvent`.
@@ -42,8 +91,14 @@ export type EventsResult = {
  * Returns `null` on every failure path so each caller can decide what its
  * own fallback should be.
  */
-async function fetchType(type: string): Promise<ClubEvent[] | null> {
-  if (!cmsConfigured) return null;
+async function fetchType(
+  type: string,
+): Promise<{ events: ClubEvent[]; source: "cms" | "cache" } | null> {
+  if (!cmsConfigured) {
+    const cached = getCached(type);
+    if (cached) return { events: cached, source: "cache" };
+    return null;
+  }
 
   try {
     const url = new URL(`${API_URL}/v1/content/${type}`);
@@ -52,22 +107,41 @@ async function fetchType(type: string): Promise<ClubEvent[] | null> {
 
     const res = await fetch(url, {
       headers: { Authorization: `Bearer ${API_KEY}` },
-      // Not using Cache Components, so this is the supported revalidation
-      // model: serve cached for 5 minutes, then refresh in the background.
-      next: { revalidate: 300 },
+      // Check for updates in the background every 60s when visited
+      next: { revalidate: 60, tags: ["cms-events", `cms-${type}`] },
     });
 
     if (!res.ok) {
       console.error(`[cms] ${type} fetch failed: ${res.status} ${res.statusText}`);
+      const cached = getCached(type);
+      if (cached) {
+        console.log(
+          `[cms] Serving ${cached.length} cached events for ${type} (CMS returned ${res.status})`,
+        );
+        return { events: cached, source: "cache" };
+      }
       return null;
     }
 
     const body = (await res.json()) as DeliveryList;
-    return (body.data ?? [])
+    const mapped = (body.data ?? [])
       .map(mapEntry)
       .filter((e): e is ClubEvent => e !== null);
+
+    if (mapped.length > 0) {
+      setCached(type, mapped);
+    }
+
+    return { events: mapped, source: "cms" };
   } catch (err) {
     console.error(`[cms] ${type} request threw:`, err);
+    const cached = getCached(type);
+    if (cached) {
+      console.log(
+        `[cms] Serving ${cached.length} cached events for ${type} (CMS unreachable)`,
+      );
+      return { events: cached, source: "cache" };
+    }
     return null;
   }
 }
@@ -102,14 +176,14 @@ async function fetchType(type: string): Promise<ClubEvent[] | null> {
  * ============================================================================
  */
 export async function getEvents(): Promise<EventsResult> {
-  const mapped = await fetchType(EVENT_TYPE);
-  if (mapped === null) {
+  const result = await fetchType(EVENT_TYPE);
+  if (result === null) {
     return { events: sampleEvents(fallbackEvents), source: "fallback" };
   }
 
   // An empty but successful response is a legitimate state (no events
   // published yet) - don't paper over it with sample data.
-  return { events: sortEvents(mapped), source: "cms" };
+  return { events: sortEvents(result.events), source: result.source };
 }
 
 /**
@@ -121,11 +195,11 @@ export async function getEvents(): Promise<EventsResult> {
  * someone publishes real ones.
  */
 export async function getOpenSourceFridays(): Promise<EventsResult> {
-  const mapped = await fetchType(OSS_FRIDAY_TYPE);
-  if (mapped === null) {
+  const result = await fetchType(OSS_FRIDAY_TYPE);
+  if (result === null) {
     return { events: sampleOssFridays(), source: "fallback" };
   }
-  return { events: sortEvents(mapped), source: "cms" };
+  return { events: sortEvents(result.events), source: result.source };
 }
 
 /* ---------------------------------------------------------------------
