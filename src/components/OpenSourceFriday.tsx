@@ -244,8 +244,13 @@ export default function OpenSourceFriday({
                     {/* Domain / Category Pill */}
                     <div className="mt-5 flex flex-wrap items-center gap-2">
                       <span className="rounded-full border border-line bg-ink/70 px-3 py-1 font-mono text-[11px] text-muted">
-                        {e.domain ?? e.level ?? MODE_LABEL[e.mode]}
+                        {e.tags?.[0] ?? e.domain ?? e.level ?? MODE_LABEL[e.mode]}
                       </span>
+                      {e.level && e.tags?.[0] && (
+                        <span className="rounded-full border border-line bg-ink/70 px-3 py-1 font-mono text-[11px] text-accent-dark">
+                          {e.level}
+                        </span>
+                      )}
                       {e.project && (
                         <span className="truncate font-mono text-[11px] text-accent-dark">
                           #{e.project}

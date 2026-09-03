@@ -7,7 +7,6 @@ import Stats from "@/components/Stats";
 import Manifesto from "@/components/Manifesto";
 import Domains from "@/components/Domains";
 import Journey from "@/components/Journey";
-import Events from "@/components/Events";
 import OpenSourceFriday from "@/components/OpenSourceFriday";
 import Team from "@/components/Team";
 import Partners from "@/components/Partners";
@@ -30,6 +29,7 @@ export const revalidate = 300;
 export default async function Home() {
   const { events } = await getEvents();
   const { events: ossFridaySessions } = await getOpenSourceFridays();
+  const sessions = events.length > 0 ? events : ossFridaySessions;
 
   return (
     <>
@@ -43,8 +43,7 @@ export default async function Home() {
           <Manifesto />
           <Domains />
           <Journey />
-          <Events events={events} />
-          <OpenSourceFriday sessions={ossFridaySessions} />
+          <OpenSourceFriday sessions={sessions} />
           <Team />
           <Partners />
           <Faq />
