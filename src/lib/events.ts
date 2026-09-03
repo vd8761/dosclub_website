@@ -328,3 +328,65 @@ export function sortEvents(list: ClubEvent[]): ClubEvent[] {
 
   return [...ongoing, ...upcoming, ...past];
 }
+
+export type FeaturedCardItem = {
+  event: ClubEvent;
+  faded: boolean;
+};
+
+/**
+ * Selects exactly up to 3 featured events matching Scenarios A through E.
+ */
+export function selectFeaturedEvents(sessions: ClubEvent[]): FeaturedCardItem[] {
+  const time = (e: ClubEvent) =>
+    parse(e.startAt)?.getTime() ?? Number.MAX_SAFE_INTEGER;
+  const endTime = (e: ClubEvent) =>
+    parse(e.endAt)?.getTime() ?? time(e);
+
+  const ongoing = sessions
+    .filter((e) => getEventStatus(e) === "ongoing")
+    .sort((a, b) => time(a) - time(b));
+
+  const upcoming = sessions
+    .filter((e) => getEventStatus(e) === "upcoming")
+    .sort((a, b) => time(a) - time(b));
+
+  const completed = sessions
+    .filter((e) => getEventStatus(e) === "completed")
+    .sort((a, b) => endTime(b) - endTime(a));
+
+  const active = [...ongoing, ...upcoming];
+
+  // Scenario A: completed available AND 2+ active available
+  if (completed.length > 0 && active.length >= 2) {
+    return [
+      { event: completed[0], faded: true },
+      { event: active[0], faded: false },
+      { event: active[1], faded: false },
+    ];
+  }
+
+  // Scenario B & C: completed available AND exactly 1 active available
+  if (completed.length > 0 && active.length === 1) {
+    const pastToTake = completed.slice(0, 2).map((e) => ({ event: e, faded: true }));
+    return [...pastToTake, { event: active[0], faded: false }];
+  }
+
+  // Scenario D: 0 completed AND 3+ active available
+  if (completed.length === 0 && active.length >= 3) {
+    return active.slice(0, 3).map((e) => ({ event: e, faded: false }));
+  }
+
+  // Scenario E: completed available AND 0 active available
+  if (completed.length > 0 && active.length === 0) {
+    return completed.slice(0, 3).map((e) => ({ event: e, faded: false }));
+  }
+
+  // Fallback (e.g. fewer than 3 total events):
+  const combined = [
+    ...active.map((e) => ({ event: e, faded: false })),
+    ...completed.map((e) => ({ event: e, faded: active.length > 0 })),
+  ];
+  return combined.slice(0, 3);
+}
+

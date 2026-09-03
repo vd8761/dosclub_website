@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "@/lib/gsap";
 import RevealText from "./ui/RevealText";
@@ -11,42 +12,9 @@ import {
   getEventStatus,
   locationLine,
   MODE_LABEL,
+  selectFeaturedEvents,
   type ClubEvent,
 } from "@/lib/events";
-
-/**
- * ============================================================================
- * TODO: CMS EVENTS INTEGRATION & DISPLAY SPECIFICATION
- * ============================================================================
- * The events section is intended to be driven by live CMS portal content.
- * Follow these exact rules when wiring CMS delivery data:
- *
- * 1. SCENARIO A: n past/completed events AND 2+ upcoming events available
- *    - Display 1 last completed event (faded appearance, registration disabled, button says "Completed").
- *    - Display 2 upcoming events (active appearance with active "Register" button if link available).
- *
- * 2. SCENARIO B: n past events AND 1 upcoming event available
- *    - Display past 2 completed events (faded, disabled "Completed" button).
- *    - Display the 1 upcoming event (active, register button).
- *
- * 3. SCENARIO C: n past events AND 1 ongoing event available
- *    - Display past 2 completed events (faded, disabled "Completed" button).
- *    - Display the 1 ongoing event (registration automatically disabled, button displays "Ongoing").
- *
- * 4. SCENARIO D: 0 past events AND 3 upcoming events available
- *    - Display all 3 upcoming events.
- *    - Show "Register" button if registration URL is provided by CMS; otherwise display "Upcoming".
- *
- * 5. SCENARIO E: n past events AND 0 upcoming events available
- *    - Display the last 3 completed events.
- *    - Do NOT fade anything in this state; display disabled button that says "Completed".
- *
- * 6. FALLBACK / OUTAGE:
- *    - If no events are returned from CMS or CMS is down/unreachable, render the bundled fallback events in `data/site.ts`.
- * ============================================================================
- */
-
-type FilterTab = "all" | "upcoming" | "ongoing" | "completed";
 
 export default function OpenSourceFriday({
   sessions,
@@ -55,7 +23,12 @@ export default function OpenSourceFriday({
 }) {
   const root = useRef<HTMLElement>(null);
   const [openId, setOpenId] = useState<string | null>(null);
-  const [filter, setFilter] = useState<FilterTab>("all");
+
+  // Exactly up to 3 featured events chosen strictly by Scenarios A-E
+  const featuredCards = useMemo(
+    () => selectFeaturedEvents(sessions),
+    [sessions],
+  );
 
   useGSAP(
     () => {
@@ -68,21 +41,10 @@ export default function OpenSourceFriday({
         scrollTrigger: { trigger: "[data-event-grid]", start: "top 85%" },
       });
     },
-    { scope: root, dependencies: [sessions.length, filter] },
+    { scope: root, dependencies: [featuredCards.length] },
   );
 
-  const getStatus = (e: ClubEvent): "upcoming" | "ongoing" | "completed" =>
-    getEventStatus(e);
-
-  const filtered = sessions.filter((e) => {
-    if (filter === "all") return true;
-    return getStatus(e) === filter;
-  });
-
   const open = sessions.find((e) => e.id === openId) ?? null;
-  const upcomingCount = sessions.filter((e) => getStatus(e) === "upcoming").length;
-  const ongoingCount = sessions.filter((e) => getStatus(e) === "ongoing").length;
-  const completedCount = sessions.filter((e) => getStatus(e) === "completed").length;
 
   return (
     <section
@@ -119,76 +81,54 @@ export default function OpenSourceFriday({
             </h2>
           </div>
 
-          <div className="max-w-sm">
-            <p className="text-sm leading-relaxed text-muted md:text-base">
+          <div className="flex flex-col items-start md:items-end gap-3 max-w-sm">
+            <p className="text-sm leading-relaxed text-muted md:text-right">
               Hands-on sessions, Open Source Fridays and live masterclasses led by
               working engineers and mentors.
             </p>
           </div>
         </div>
 
-        {/* ---------------- Filter Tabs ---------------- */}
-        <div className="mt-12 flex flex-wrap items-center justify-between gap-4 border-b border-line pb-6">
-          <div className="flex flex-wrap items-center gap-2">
-            {(
-              [
-                { id: "all", label: "All Events", count: sessions.length },
-                { id: "upcoming", label: "Upcoming", count: upcomingCount },
-                { id: "ongoing", label: "Ongoing", count: ongoingCount },
-                { id: "completed", label: "Completed", count: completedCount },
-              ] as const
-            ).map((tab) => {
-              const active = filter === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  type="button"
-                  onClick={() => setFilter(tab.id)}
-                  className={`inline-flex items-center gap-2 rounded-full px-4 py-2 font-mono text-xs uppercase tracking-[0.12em] transition-all duration-300 ${
-                    active
-                      ? "bg-fg text-ink shadow-md"
-                      : "border border-line bg-surface/60 text-muted hover:border-accent hover:text-fg"
-                  }`}
-                >
-                  <span>{tab.label}</span>
-                  <span
-                    className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${
-                      active ? "bg-ink/20 text-ink" : "bg-ink-2 text-muted"
-                    }`}
-                  >
-                    {tab.count}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-
-          <span className="font-mono text-xs text-muted">
-            Showing {filtered.length} {filtered.length === 1 ? "event" : "events"}
+        {/* ---------------- Section Subheader & View All Link ---------------- */}
+        <div className="mt-12 flex items-center justify-between border-b border-line pb-6">
+          <span className="font-mono text-xs uppercase tracking-[0.14em] text-muted">
+            Featured Events ({featuredCards.length})
           </span>
+          <Link
+            href="/events"
+            className="group inline-flex items-center gap-2 font-mono text-xs sm:text-sm font-medium text-accent hover:text-fg transition-colors"
+          >
+            <span>View all events</span>
+            <span
+              className="inline-block transition-transform duration-200 group-hover:translate-x-1"
+              aria-hidden
+            >
+              &rarr;
+            </span>
+          </Link>
         </div>
 
-        {/* ---------------- Events Grid ---------------- */}
-        {filtered.length === 0 ? (
+        {/* ---------------- Events Grid (Exactly up to 3 Featured Events) ---------------- */}
+        {featuredCards.length === 0 ? (
           <div className="mt-16 flex min-h-[220px] flex-col items-center justify-center rounded-3xl border border-dashed border-line bg-surface/50 p-8 text-center">
             <p className="font-mono text-sm text-muted">
-              No events found in this category right now.
+              No featured events scheduled right now.
             </p>
-            <button
-              onClick={() => setFilter("all")}
-              className="btn btn-ghost mt-4 !py-2 !text-xs"
+            <Link
+              href="/events"
+              className="btn btn-ghost mt-4 !py-2 !text-xs font-mono"
             >
-              Show all events
-            </button>
+              Browse event timeline &rarr;
+            </Link>
           </div>
         ) : (
           <div
             data-event-grid
             className="mt-8 flex flex-wrap justify-center gap-6"
           >
-            {filtered.map((e) => {
+            {featuredCards.map(({ event: e, faded }) => {
               const { day, month } = formatEventDayMonth(e);
-              const status = getStatus(e);
+              const status = getEventStatus(e);
               const isUpcoming = status === "upcoming";
               const isOngoing = status === "ongoing";
               const isCompleted = status === "completed";
@@ -197,7 +137,9 @@ export default function OpenSourceFriday({
                 <article
                   key={e.id}
                   data-event-card
-                  className="glass group relative flex flex-col justify-between overflow-hidden rounded-3xl p-6 transition-all duration-500 hover:-translate-y-2 hover:border-accent hover:shadow-[0_24px_64px_-32px_rgba(12,51,70,0.45)] w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] xl:w-[calc(25%-18px)] max-w-[360px]"
+                  className={`glass group relative flex flex-col justify-between overflow-hidden rounded-3xl p-6 transition-all duration-500 hover:-translate-y-2 hover:border-accent hover:shadow-[0_24px_64px_-32px_rgba(12,51,70,0.45)] w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] max-w-[380px] ${
+                    faded ? "opacity-65 saturate-75 hover:opacity-100 hover:saturate-100" : ""
+                  }`}
                 >
                   {/* Top Bar: Date + Status Badge */}
                   <div>
@@ -288,45 +230,34 @@ export default function OpenSourceFriday({
                           rel="noreferrer noopener"
                           className="btn btn-primary w-full justify-center !py-2.5 !text-xs font-semibold shadow-sm hover:shadow-md"
                         >
-                          Register Now <span aria-hidden>{"->"}</span>
-                        </a>
-                      ) : (
-                        <a
-                          href="http://membership.descienceosclub.com/"
-                          target="_blank"
-                          rel="noreferrer noopener"
-                          className="btn btn-primary w-full justify-center !py-2.5 !text-xs font-semibold shadow-sm hover:shadow-md"
-                        >
                           Register <span aria-hidden>{"->"}</span>
-                        </a>
-                      )
-                    ) : isOngoing ? (
-                      e.joinUrl ? (
-                        <a
-                          href={e.joinUrl}
-                          target="_blank"
-                          rel="noreferrer noopener"
-                          className="btn btn-primary w-full justify-center !bg-accent hover:!bg-accent-dark !py-2.5 !text-xs font-semibold"
-                        >
-                          Join Live <span aria-hidden>{"->"}</span>
                         </a>
                       ) : (
                         <button
                           type="button"
-                          onClick={() => setOpenId(e.id)}
-                          className="btn btn-ghost w-full justify-center !py-2.5 !text-xs"
+                          disabled
+                          className="btn btn-ghost w-full justify-center !py-2.5 !text-xs font-mono text-primary-dark border border-primary/30 bg-primary/10"
                         >
-                          View Details
+                          Upcoming
                         </button>
                       )
+                    ) : isOngoing ? (
+                      <button
+                        type="button"
+                        disabled
+                        aria-disabled="true"
+                        className="btn btn-ghost w-full justify-center !py-2.5 !text-xs border border-accent/40 bg-accent/15 text-accent-dark font-mono"
+                      >
+                        Ongoing
+                      </button>
                     ) : (
                       <button
                         type="button"
                         disabled
                         aria-disabled="true"
-                        className="btn btn-ghost w-full justify-center !py-2.5 !text-xs !cursor-not-allowed opacity-60 border border-line/60 bg-ink-2/40 text-muted"
+                        className="btn btn-ghost w-full justify-center !py-2.5 !text-xs !cursor-not-allowed opacity-60 border border-line/60 bg-ink-2/40 text-muted font-mono"
                       >
-                        Closed
+                        Completed
                       </button>
                     )}
                   </div>
