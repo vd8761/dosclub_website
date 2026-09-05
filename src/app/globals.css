@@ -505,6 +505,10 @@ button:hover {
   }
 }
 
+.no-bar {
+  /* Firefox; the WebKit rule below covers Chrome/Safari. */
+  scrollbar-width: none;
+}
 .no-bar::-webkit-scrollbar {
   display: none;
 }

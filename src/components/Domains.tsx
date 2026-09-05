@@ -1,90 +1,127 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "@/lib/gsap";
 import { domains } from "@/data/site";
 
-/** Resting tilt of each card in the deck, front to back (kept flat/minimal to eliminate horizontal page wiggle). */
-const TILT = [0, 0, 0, 0];
 /** Each card sits this much smaller and lower than the one in front. */
 const SCALE_STEP = 0.04;
 const Y_STEP = 12;
-
-const tiltAt = (depth: number) => TILT[depth % TILT.length];
+/** Flex gap between cards in the mobile snap row, in px (gap-4). */
+const CARD_GAP = 16;
 
 export default function Domains() {
   const root = useRef<HTMLElement>(null);
-  const pin = useRef<HTMLDivElement>(null);
+  const deck = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
 
   useGSAP(
     () => {
-      const cards = gsap.utils.toArray<HTMLElement>("[data-card]");
-      if (!cards.length) return;
+      const mm = gsap.matchMedia();
 
-      /** Where a card sits when it is `depth` positions back in the deck. */
-      const seat = (depth: number) => ({
-        x: 0,
-        y: depth * Y_STEP,
-        scale: 1 - depth * SCALE_STEP,
-        rotate: 0,
-        opacity: 1,
-      });
+      // The pinned deck is a desktop behaviour only. On phones, pinning a
+      // section while ScrollSmoother is running is the single most
+      // expensive thing on the page, and the deck is replaced by a plain
+      // swipeable row below - so the timeline is never built there.
+      mm.add(
+        "(min-width: 768px) and (prefers-reduced-motion: no-preference)",
+        () => {
+          const cards = gsap.utils.toArray<HTMLElement>("[data-card]");
+          if (!cards.length) return;
 
-      // Initial deck: card 0 on top, the rest fanned behind it.
-      cards.forEach((card, i) => gsap.set(card, seat(i)));
-
-      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
-      const isMobile = window.innerWidth < 768;
-
-      const tl = gsap.timeline({
-        defaults: { ease: "none" },
-        scrollTrigger: {
-          trigger: root.current,
-          start: isMobile ? "top 5%" : "top 8%",
-          end: () => "+=" + cards.length * (isMobile ? 220 : 250),
-          pin: true,
-          pinSpacing: true,
-          scrub: true, // 1:1 direct tracking - completely eliminates ghost scrolling & rubber-band pull
-          anticipatePin: 1,
-          invalidateOnRefresh: true,
-          onUpdate: (self) => {
-            const i = gsap.utils.clamp(
-              0,
-              cards.length - 1,
-              Math.round(self.progress * (cards.length - 1)),
-            );
-            setActive((prev) => (prev === i ? prev : i));
-          },
-        },
-      });
-
-      cards.forEach((card, i) => {
-        // The last card stays - there is nothing behind it to reveal.
-        if (i === cards.length - 1) return;
-
-        tl.to(
-          card,
-          {
+          /** Where a card sits when it is `depth` positions back. */
+          const seat = (depth: number) => ({
             x: 0,
-            y: -75,
+            y: depth * Y_STEP,
+            scale: 1 - depth * SCALE_STEP,
             rotate: 0,
-            scale: 0.92,
-            opacity: 0,
-            duration: 1,
-          },
-          i,
-        );
+            opacity: 1,
+          });
 
-        cards.slice(i + 1).forEach((behind, k) => {
-          tl.to(behind, { ...seat(k), duration: 1 }, i);
-        });
-      });
+          // Initial deck: card 0 on top, the rest fanned behind it.
+          cards.forEach((card, i) => gsap.set(card, seat(i)));
+
+          const tl = gsap.timeline({
+            defaults: { ease: "none" },
+            scrollTrigger: {
+              trigger: root.current,
+              start: "top 8%",
+              end: () => "+=" + cards.length * 250,
+              pin: true,
+              pinSpacing: true,
+              scrub: true,
+              anticipatePin: 1,
+              invalidateOnRefresh: true,
+              onUpdate: (self) => {
+                const i = gsap.utils.clamp(
+                  0,
+                  cards.length - 1,
+                  Math.round(self.progress * (cards.length - 1)),
+                );
+                setActive((prev) => (prev === i ? prev : i));
+              },
+            },
+          });
+
+          cards.forEach((card, i) => {
+            // The last card stays - there is nothing behind it to reveal.
+            if (i === cards.length - 1) return;
+
+            // Movement runs the whole step, but the fade is deliberately
+            // short and front-loaded. Fading a card out across the full
+            // step means two cards of text sit blended on top of each
+            // other for the entire transition, which is unreadable; this
+            // way the outgoing card clears out early and the incoming one
+            // is clean for most of the scroll.
+            tl.to(
+              card,
+              { x: 0, y: -75, rotate: 0, scale: 0.92, duration: 1 },
+              i,
+            ).to(
+              card,
+              { opacity: 0, duration: 0.35, ease: "power2.in" },
+              i,
+            );
+
+            cards.slice(i + 1).forEach((behind, k) => {
+              tl.to(behind, { ...seat(k), duration: 1 }, i);
+            });
+          });
+        },
+      );
+
+      return () => mm.revert();
     },
     { scope: root },
   );
+
+  // Below md the deck is a snap-scrolling row, so the progress readout
+  // follows the scroll position instead of the pinned timeline.
+  useEffect(() => {
+    const el = deck.current;
+    if (!el) return;
+
+    let queued = false;
+    const onScroll = () => {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(() => {
+        queued = false;
+        const card = el.firstElementChild as HTMLElement | null;
+        if (!card) return;
+        // Card width plus the flex gap gives the stride between snaps.
+        const stride = card.offsetWidth + CARD_GAP;
+        const i = Math.round(el.scrollLeft / Math.max(1, stride));
+        setActive((prev) =>
+          prev === i ? prev : Math.min(Math.max(i, 0), domains.length - 1),
+        );
+      });
+    };
+
+    el.addEventListener("scroll", onScroll, { passive: true });
+    return () => el.removeEventListener("scroll", onScroll);
+  }, []);
 
   return (
     <section id="domains" ref={root} className="section pt-6 pb-16 md:py-24 overflow-hidden">
@@ -128,8 +165,20 @@ export default function Domains() {
           </div>
 
           {/* ---------------- The deck ---------------- */}
-          <div className="lg:col-span-7 w-full overflow-hidden sm:overflow-visible">
-            <div className="relative mx-auto h-[350px] xs:h-[360px] sm:h-[420px] md:h-[440px] w-full max-w-[21.5rem] xs:max-w-[24rem] sm:max-w-[32rem] md:max-w-[34rem] lg:max-w-[36rem]">
+          <div className="w-full lg:col-span-7">
+            {/*
+              Two layouts from one set of cards. Below md this is a
+              snap-scrolling row - swipe one card at a time, native
+              scrolling, nothing animating. From md up it becomes the
+              stacked deck the pinned timeline drives, with the cards
+              absolutely positioned on top of each other.
+              The negative margin lets the row bleed to the screen edges
+              so a card can sit centred with its neighbours peeking in.
+            */}
+            <div
+              ref={deck}
+              className="no-bar -mx-6 flex snap-x snap-mandatory gap-4 overflow-x-auto px-6 pb-2 md:mx-auto md:block md:h-[440px] md:max-w-[34rem] md:snap-none md:overflow-visible md:px-0 md:pb-0 lg:max-w-[36rem]"
+            >
               {domains.map((d, i) => {
                 // Domain-specific graphical telemetry rendering
                 const renderVisualContent = () => {
@@ -347,7 +396,7 @@ export default function Domains() {
                   <article
                     key={d.no}
                     data-card
-                    className="absolute inset-0 flex flex-col justify-between overflow-hidden rounded-2xl sm:rounded-3xl border border-line bg-surface p-4 xs:p-5 sm:p-7 md:p-8 shadow-[0_32px_80px_-48px_rgba(12,51,70,0.45)]"
+                    className="relative flex min-h-[22rem] w-[86%] shrink-0 snap-center flex-col justify-between overflow-hidden rounded-2xl border border-line bg-surface p-5 shadow-[0_32px_80px_-48px_rgba(12,51,70,0.45)] xs:w-[84%] sm:w-[70%] sm:rounded-3xl sm:p-7 md:absolute md:inset-0 md:min-h-0 md:w-auto md:p-8"
                     style={{
                       zIndex: domains.length - i,
                       transformOrigin: "center center",

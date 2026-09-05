@@ -347,15 +347,15 @@ function LeadCard({
             alt={e.cover.alt ?? ""}
             loading="lazy"
             decoding="async"
-            className="max-h-[260px] w-full object-cover object-top transition-transform duration-700 group-hover:scale-[1.03]"
+            className="max-h-[180px] w-full object-cover object-top transition-transform duration-700 group-hover:scale-[1.03] sm:max-h-[260px]"
           />
         </div>
       )}
 
-      <div className="flex flex-1 flex-col p-6 md:p-8">
-        <div className="flex items-start gap-5">
+      <div className="flex flex-1 flex-col p-5 sm:p-6 md:p-8">
+        <div className="flex items-start gap-4 sm:gap-5">
           <span
-            className={`flex h-16 w-16 shrink-0 flex-col items-center justify-center rounded-2xl font-mono leading-none shadow-sm ${
+            className={`flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-2xl font-mono leading-none shadow-sm sm:h-16 sm:w-16 ${
               live
                 ? "bg-gradient-to-br from-accent to-accent-dark text-white"
                 : upcoming
@@ -370,7 +370,7 @@ function LeadCard({
           </span>
 
           <div className="min-w-0 flex-1">
-            <h3 className="display text-2xl font-bold leading-tight transition-colors group-hover:text-primary-dark sm:text-3xl">
+            <h3 className="display text-xl font-bold leading-tight transition-colors group-hover:text-primary-dark sm:text-2xl md:text-3xl">
               {e.title}
             </h3>
             <p className="mt-1.5 font-mono text-xs text-muted">
@@ -380,13 +380,13 @@ function LeadCard({
         </div>
 
         {e.summary && (
-          <p className="mt-5 line-clamp-3 text-sm leading-relaxed text-muted">
+          <p className="mt-4 line-clamp-3 text-sm leading-relaxed text-muted sm:mt-5">
             {e.summary}
           </p>
         )}
 
         {/* Meta - one item per line so long venue names do not collide. */}
-        <dl className="mt-6 grid gap-2.5 font-mono text-xs text-muted sm:grid-cols-2">
+        <dl className="mt-5 grid gap-2.5 font-mono text-xs text-muted sm:mt-6 sm:grid-cols-2">
           <div className="flex items-center gap-2">
             <IconClock className="h-4 w-4 shrink-0 text-accent-dark" />
             <dd className="truncate">{formatEventTime(e) || "Time TBA"}</dd>
@@ -406,13 +406,16 @@ function LeadCard({
           )}
         </dl>
 
-        <div className="mt-auto flex flex-wrap items-center gap-3 border-t border-line/80 pt-5">
+        {/* Stacked on phones: two buttons side by side in a 360px card
+            leaves neither enough room to read, and the status chip would
+            wrap into a lonely third row. */}
+        <div className="mt-auto flex flex-col gap-3 border-t border-line/80 pt-5 sm:flex-row sm:flex-wrap sm:items-center">
           {live && e.joinUrl ? (
             <a
               href={e.joinUrl}
               target="_blank"
               rel="noreferrer noopener"
-              className="btn btn-primary !bg-accent hover:!bg-accent-dark !py-2.5 font-mono !text-xs font-semibold"
+              className="btn btn-primary !bg-accent hover:!bg-accent-dark w-full justify-center !py-2.5 font-mono !text-xs font-semibold sm:w-auto"
             >
               Join live
               <IconArrow className="h-3.5 w-3.5" />
@@ -422,7 +425,7 @@ function LeadCard({
               href={e.registerUrl}
               target="_blank"
               rel="noreferrer noopener"
-              className="btn btn-primary !py-2.5 font-mono !text-xs font-semibold"
+              className="btn btn-primary w-full justify-center !py-2.5 font-mono !text-xs font-semibold sm:w-auto"
             >
               Register
               <IconArrow className="h-3.5 w-3.5" />
@@ -432,7 +435,7 @@ function LeadCard({
           <button
             type="button"
             onClick={onOpen}
-            className="btn btn-ghost !py-2.5 font-mono !text-xs"
+            className="btn btn-ghost w-full justify-center !py-2.5 font-mono !text-xs sm:w-auto"
           >
             Agenda &amp; details
           </button>
@@ -440,7 +443,7 @@ function LeadCard({
           {/* Status sits with the actions, right-aligned - it is a fact
               about the event, not a label to slap over the artwork. */}
           <span
-            className={`ml-auto inline-flex items-center gap-2 rounded-full border px-3 py-1 font-mono text-[10px] font-semibold uppercase tracking-[0.16em] ${STATUS_CHIP[status]}`}
+            className={`self-end inline-flex items-center gap-2 rounded-full border px-3 py-1 font-mono text-[10px] font-semibold uppercase tracking-[0.16em] sm:ml-auto sm:self-auto ${STATUS_CHIP[status]}`}
           >
             {live && (
               <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-accent" />
@@ -480,7 +483,7 @@ function CompactRow({
         }`}
       >
         <span
-          className={`flex h-12 w-12 shrink-0 flex-col items-center justify-center rounded-xl font-mono leading-none ${
+          className={`flex h-11 w-11 shrink-0 flex-col items-center justify-center rounded-xl font-mono leading-none sm:h-12 sm:w-12 ${
             live
               ? "bg-accent/15 text-accent-dark"
               : upcoming
@@ -519,7 +522,8 @@ function CompactRow({
         </span>
 
         <IconArrow
-          className="h-4 w-4 shrink-0 text-muted opacity-0 transition-all duration-300 group-hover:translate-x-0.5 group-hover:text-accent-dark group-hover:opacity-100"
+          // Phones have no hover, so the affordance is always faintly there.
+          className="h-4 w-4 shrink-0 text-muted opacity-60 transition-all duration-300 group-hover:translate-x-0.5 group-hover:text-accent-dark group-hover:opacity-100 sm:opacity-0"
         />
       </button>
     </li>
