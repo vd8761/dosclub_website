@@ -177,7 +177,10 @@ export default function Domains() {
             */}
             <div
               ref={deck}
-              className="no-bar -mx-6 flex snap-x snap-mandatory gap-4 overflow-x-auto px-6 pb-2 md:mx-auto md:block md:h-[440px] md:max-w-[34rem] md:snap-none md:overflow-visible md:px-0 md:pb-0 lg:max-w-[36rem]"
+              // `relative` is what the md:absolute cards position against -
+              // without it they resolve to a far-away ancestor and stretch
+              // across the whole page.
+              className="no-bar relative -mx-6 flex snap-x snap-mandatory gap-4 overflow-x-auto px-6 pb-2 md:mx-auto md:block md:h-[440px] md:max-w-[34rem] md:snap-none md:overflow-visible md:px-0 md:pb-0 lg:max-w-[36rem]"
             >
               {domains.map((d, i) => {
                 // Domain-specific graphical telemetry rendering
