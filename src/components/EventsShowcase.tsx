@@ -249,11 +249,11 @@ export default function EventsShowcase({
             data-event-grid
             className="mt-12 grid gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:gap-8"
           >
-            <div ref={leadRef} className="flex">
+            <div ref={leadRef} className="flex min-w-0">
               <LeadCard event={lead} onOpen={() => setOpenId(lead.id)} />
             </div>
 
-            <div className="flex flex-col gap-4">
+            <div className="flex min-w-0 flex-col gap-4">
               <div
                 ref={chromeRef}
                 className="flex items-baseline justify-between border-b border-line pb-3"
@@ -370,7 +370,7 @@ function LeadCard({
           </span>
 
           <div className="min-w-0 flex-1">
-            <h3 className="display text-xl font-bold leading-tight transition-colors group-hover:text-primary-dark sm:text-2xl md:text-3xl">
+            <h3 className="display break-words text-xl font-bold leading-tight transition-colors group-hover:text-primary-dark sm:text-2xl md:text-3xl">
               {e.title}
             </h3>
             <p className="mt-1.5 font-mono text-xs text-muted">
@@ -387,16 +387,16 @@ function LeadCard({
 
         {/* Meta - one item per line so long venue names do not collide. */}
         <dl className="mt-5 grid gap-2.5 font-mono text-xs text-muted sm:mt-6 sm:grid-cols-2">
-          <div className="flex items-center gap-2">
+          <div className="flex min-w-0 items-center gap-2">
             <IconClock className="h-4 w-4 shrink-0 text-accent-dark" />
             <dd className="truncate">{formatEventTime(e) || "Time TBA"}</dd>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex min-w-0 items-center gap-2">
             <IconPin className="h-4 w-4 shrink-0 text-accent-dark" />
             <dd className="truncate">{locationLine(e) || "Online"}</dd>
           </div>
           {e.hosts[0]?.name && (
-            <div className="flex items-center gap-2 sm:col-span-2">
+            <div className="flex min-w-0 items-center gap-2 sm:col-span-2">
               <IconUser className="h-4 w-4 shrink-0 text-accent-dark" />
               <dd className="truncate">
                 {e.hosts[0].name}

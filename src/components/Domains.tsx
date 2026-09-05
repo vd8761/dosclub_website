@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "@/lib/gsap";
 import { domains } from "@/data/site";
@@ -8,8 +8,6 @@ import { domains } from "@/data/site";
 /** Each card sits this much smaller and lower than the one in front. */
 const SCALE_STEP = 0.04;
 const Y_STEP = 12;
-/** Flex gap between cards in the mobile snap row, in px (gap-4). */
-const CARD_GAP = 16;
 
 export default function Domains() {
   const root = useRef<HTMLElement>(null);
@@ -22,8 +20,8 @@ export default function Domains() {
 
       // The pinned deck is a desktop behaviour only. On phones, pinning a
       // section while ScrollSmoother is running is the single most
-      // expensive thing on the page, and the deck is replaced by a plain
-      // swipeable row below - so the timeline is never built there.
+      // expensive thing on the page, and the cards just stack and scroll
+      // normally there - so the timeline is never built.
       mm.add(
         "(min-width: 768px) and (prefers-reduced-motion: no-preference)",
         () => {
@@ -96,33 +94,6 @@ export default function Domains() {
     { scope: root },
   );
 
-  // Below md the deck is a snap-scrolling row, so the progress readout
-  // follows the scroll position instead of the pinned timeline.
-  useEffect(() => {
-    const el = deck.current;
-    if (!el) return;
-
-    let queued = false;
-    const onScroll = () => {
-      if (queued) return;
-      queued = true;
-      requestAnimationFrame(() => {
-        queued = false;
-        const card = el.firstElementChild as HTMLElement | null;
-        if (!card) return;
-        // Card width plus the flex gap gives the stride between snaps.
-        const stride = card.offsetWidth + CARD_GAP;
-        const i = Math.round(el.scrollLeft / Math.max(1, stride));
-        setActive((prev) =>
-          prev === i ? prev : Math.min(Math.max(i, 0), domains.length - 1),
-        );
-      });
-    };
-
-    el.addEventListener("scroll", onScroll, { passive: true });
-    return () => el.removeEventListener("scroll", onScroll);
-  }, []);
-
   return (
     <section id="domains" ref={root} className="section pt-6 pb-16 md:py-24 overflow-hidden">
       <div className="container-x">
@@ -141,7 +112,7 @@ export default function Domains() {
             </p>
 
             {/* Deck progress */}
-            <div className="mt-8 flex items-center gap-4">
+            <div className="mt-8 hidden items-center gap-4 md:flex">
               <span className="font-mono text-sm font-semibold text-muted">
                 <span className="text-primary-dark">
                   {String(active + 1).padStart(2, "0")}
@@ -167,20 +138,18 @@ export default function Domains() {
           {/* ---------------- The deck ---------------- */}
           <div className="w-full lg:col-span-7">
             {/*
-              Two layouts from one set of cards. Below md this is a
-              snap-scrolling row - swipe one card at a time, native
-              scrolling, nothing animating. From md up it becomes the
-              stacked deck the pinned timeline drives, with the cards
-              absolutely positioned on top of each other.
-              The negative margin lets the row bleed to the screen edges
-              so a card can sit centred with its neighbours peeking in.
+              Two layouts from one set of cards. Below md the cards simply
+              stack and scroll with the page like any other content - no
+              pinning, no swiping, nothing animating. From md up they
+              become the deck the pinned timeline drives, absolutely
+              positioned on top of each other.
             */}
             <div
               ref={deck}
               // `relative` is what the md:absolute cards position against -
               // without it they resolve to a far-away ancestor and stretch
               // across the whole page.
-              className="no-bar relative -mx-6 flex snap-x snap-mandatory gap-4 overflow-x-auto px-6 pb-2 md:mx-auto md:block md:h-[440px] md:max-w-[34rem] md:snap-none md:overflow-visible md:px-0 md:pb-0 lg:max-w-[36rem]"
+              className="relative flex flex-col gap-4 md:mx-auto md:block md:h-[440px] md:max-w-[34rem] lg:max-w-[36rem]"
             >
               {domains.map((d, i) => {
                 // Domain-specific graphical telemetry rendering
@@ -399,7 +368,7 @@ export default function Domains() {
                   <article
                     key={d.no}
                     data-card
-                    className="relative flex min-h-[22rem] w-[86%] shrink-0 snap-center flex-col justify-between overflow-hidden rounded-2xl border border-line bg-surface p-5 shadow-[0_32px_80px_-48px_rgba(12,51,70,0.45)] xs:w-[84%] sm:w-[70%] sm:rounded-3xl sm:p-7 md:absolute md:inset-0 md:min-h-0 md:w-auto md:p-8"
+                    className="relative flex min-h-[21rem] w-full flex-col justify-between overflow-hidden rounded-2xl border border-line bg-surface p-5 shadow-[0_32px_80px_-48px_rgba(12,51,70,0.45)] sm:rounded-3xl sm:p-7 md:absolute md:inset-0 md:min-h-0 md:p-8"
                     style={{
                       zIndex: domains.length - i,
                       transformOrigin: "center center",
