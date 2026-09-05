@@ -109,13 +109,28 @@ async function verifyTurnstileToken(token: unknown, ip: string): Promise<boolean
     return false;
   }
 
-  const secret =
-    process.env.CLOUDFLARE_TURNSTILE_SECRET_KEY ||
-    "1x0000000000000000000000000000000AA"; // Cloudflare official test secret
+  // Fail closed. Cloudflare's test secret accepts *any* token, so falling
+  // back to it when the real one is missing would leave the form wide open
+  // and look like a working captcha. In development that is a convenience;
+  // in production a missing secret is a misconfiguration, and the right
+  // answer is to reject rather than to wave submissions through.
+  const secret = process.env.CLOUDFLARE_TURNSTILE_SECRET_KEY;
+  if (!secret) {
+    if (process.env.NODE_ENV === "production") {
+      console.error(
+        "[turnstile] CLOUDFLARE_TURNSTILE_SECRET_KEY is not set - rejecting submission.",
+      );
+      return false;
+    }
+    console.warn(
+      "[turnstile] No secret set; using Cloudflare's always-passes test secret (development only).",
+    );
+  }
+  const verifySecret = secret || "1x0000000000000000000000000000000AA";
 
   try {
     const formData = new URLSearchParams();
-    formData.append("secret", secret);
+    formData.append("secret", verifySecret);
     formData.append("response", token.trim());
     if (ip && ip !== "unknown") {
       formData.append("remoteip", ip);

@@ -28,8 +28,11 @@ interface TurnstileWidgetProps {
   className?: string;
 }
 
-// Cloudflare official test sitekey (always passes successfully) as default fallback if env var is unset
-const DEFAULT_SITE_KEY = "1x00000000000000000000AA";
+// Cloudflare's official test sitekey - it always passes, so it is only a
+// sane default while developing. In production an unset key means the
+// widget is misconfigured, and quietly rendering a captcha that accepts
+// everything is worse than showing nothing at all.
+const TEST_SITE_KEY = "1x00000000000000000000AA";
 
 export default function TurnstileWidget({
   onVerify,
@@ -41,8 +44,10 @@ export default function TurnstileWidget({
   const widgetIdRef = useRef<string | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
 
+  const configuredSiteKey = process.env.NEXT_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY;
   const siteKey =
-    process.env.NEXT_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY || DEFAULT_SITE_KEY;
+    configuredSiteKey ||
+    (process.env.NODE_ENV === "production" ? "" : TEST_SITE_KEY);
 
   useEffect(() => {
     // Check if script already injected
@@ -71,6 +76,13 @@ export default function TurnstileWidget({
 
   useEffect(() => {
     if (!isLoaded || !containerRef.current || !window.turnstile) return;
+    if (!siteKey) {
+      console.error(
+        "[Turnstile] NEXT_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY is not set - the captcha cannot render.",
+      );
+      onError?.();
+      return;
+    }
 
     // If widget was already rendered, remove old one
     if (widgetIdRef.current) {
