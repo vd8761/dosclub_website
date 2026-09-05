@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useGSAP } from "@gsap/react";
-import { gsap } from "@/lib/gsap";
+import { gsap, ScrollTrigger } from "@/lib/gsap";
 import RevealText from "./ui/RevealText";
 import EventModal from "./EventModal";
 import {
@@ -166,16 +166,48 @@ export default function EventsShowcase({
 
   useGSAP(
     () => {
-      gsap.from("[data-event-card]", {
-        y: 28,
-        opacity: 0,
-        duration: 0.8,
-        ease: "expo.out",
-        stagger: 0.09,
-        scrollTrigger: { trigger: "[data-event-grid]", start: "top 85%" },
-      });
+      // Deliberately fromTo, not from, and deliberately not rendered until
+      // the trigger fires. A `from` tween hides its targets the moment it
+      // is created and works out the end state by reading the element -
+      // so anything that re-reads it while it is still hidden (a
+      // ScrollTrigger refresh, which this section causes several of as it
+      // streams in and its cover image lands) can record "invisible" as
+      // the destination and leave the card stranded at opacity 0.
+      // Explicit end values plus immediateRender:false mean the worst case
+      // is an un-animated card, never a missing one.
+      gsap.fromTo(
+        "[data-event-card]",
+        { y: 28, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.8,
+          ease: "expo.out",
+          stagger: 0.09,
+          // Leave no inline opacity/transform behind to strand anything.
+          clearProps: "opacity,transform",
+          immediateRender: false,
+          scrollTrigger: {
+            trigger: "[data-event-grid]",
+            start: "top 85%",
+            once: true,
+          },
+        },
+      );
+
+      // This section streams in after the rest of the page, replacing a
+      // skeleton of a different height, and the row count below settles a
+      // frame later still. Every ScrollTrigger on the page was measured
+      // against the layout that came before all that, so without a refresh
+      // this card's own trigger can sit at a scroll position that is never
+      // reached - leaving it stuck at opacity 0, invisible.
+      const raf = requestAnimationFrame(() => ScrollTrigger.refresh());
+      return () => cancelAnimationFrame(raf);
     },
-    { scope: root, dependencies: [ordered.length] },
+    // visible.length is a dependency because the row count settles a frame
+    // after mount: without it the tween is built against three rows and the
+    // ones added afterwards are never part of it.
+    { scope: root, dependencies: [ordered.length, visible.length] },
   );
 
   const open = sessions.find((e) => e.id === openId) ?? null;
@@ -347,6 +379,10 @@ function LeadCard({
             alt={e.cover.alt ?? ""}
             loading="lazy"
             decoding="async"
+            // The cover has no reserved height, so its arrival shifts
+            // everything below it. Re-measuring keeps the scroll triggers
+            // on this page honest.
+            onLoad={() => ScrollTrigger.refresh()}
             className="max-h-[180px] w-full object-cover object-top transition-transform duration-700 group-hover:scale-[1.03] sm:max-h-[260px]"
           />
         </div>

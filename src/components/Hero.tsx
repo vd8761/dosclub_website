@@ -89,7 +89,7 @@ export default function Hero({
         className="mx-auto w-full max-w-[1560px] px-6 sm:px-10 lg:px-12 xl:px-16 relative z-10 grid items-center gap-8 lg:grid-cols-12 lg:gap-8 xl:gap-12 2xl:gap-16"
       >
         {/* ---------------- Left: the pitch ---------------- */}
-        <div className="lg:col-span-7 2xl:col-span-7">
+        <div className="min-w-0 lg:col-span-7 2xl:col-span-7">
           <div data-hero-fade className="mb-4 lg:mb-5">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -102,7 +102,7 @@ export default function Hero({
           {/* Next-event / Ongoing ribbon - streams in behind its own
               boundary, so a slow events query never delays the hero. */}
           {sessionsPromise && (
-            <div data-hero-fade>
+            <div data-hero-fade className="min-w-0">
               <Suspense fallback={<HeroEventRibbonFallback />}>
                 <HeroEventRibbon sessionsPromise={sessionsPromise} />
               </Suspense>
@@ -169,7 +169,7 @@ export default function Hero({
           <CodePane />
 
           <div className="label mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs sm:text-sm font-semibold">
-            <span>AI Engineering</span>
+            <span>AI Engg.</span>
             <span className="text-primary">/</span>
             <span>Cloud</span>
             <span className="text-accent">/</span>

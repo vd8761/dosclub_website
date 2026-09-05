@@ -180,20 +180,22 @@ export const ossFridays = [
 ];
 
 /**
- * Student teams, each named after a colour. The group photo for a team is
- * `/team/<slug>.jpeg`, and `swatch` is the dot shown next to the name.
+ * Student teams, each named after a colour.
+ *
+ * The artwork already carries the team name, so the site does not label
+ * the tiles - the image is the whole card. Photos are roughly square
+ * (~1254x1150) and are shown complete, never cropped.
+ *
+ * Still to come: Black, Orange, Silver and Yellow. Add a line here as
+ * each lands - nothing else needs to change.
  */
 export const studentTeams = [
-  { name: "Red", slug: "red", swatch: "#e04a3f" },
-  { name: "Orange", slug: "orange", swatch: "#ef8b34" },
-  { name: "Yellow", slug: "yellow", swatch: "#e8bf3c" },
-  { name: "Green", slug: "green", swatch: "#4caf50" },
-  { name: "Blue", slug: "blue", swatch: "#1593c3" },
-  { name: "Purple", slug: "purple", swatch: "#8256c4" },
-  { name: "Pink", slug: "pink", swatch: "#e0699b" },
-  { name: "Black", slug: "black", swatch: "#20303a" },
-  { name: "Silver", slug: "silver", swatch: "#a8b6bf" },
-  { name: "White", slug: "white", swatch: "#f2f5f7" },
+  { name: "Red", image: "/team/Team_Red.png" },
+  { name: "Green", image: "/team/Team_Green.png" },
+  { name: "Blue", image: "/team/Team_Blue.png" },
+  { name: "Purple", image: "/team/Team_Purple.png" },
+  { name: "Pink", image: "/team/Team_Pink.png" },
+  { name: "White", image: "/team/Team_White.png" },
 ];
 
 /**

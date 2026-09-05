@@ -110,8 +110,7 @@ export default function Navbar() {
       const trackRect = track.getBoundingClientRect();
       const firstRect = firstDot.getBoundingClientRect();
       const lastRect = lastDot.getBoundingClientRect();
-      const railLeft =
-        firstRect.left + firstRect.width / 2 - trackRect.left;
+      const railLeft = firstRect.left + firstRect.width / 2 - trackRect.left;
       const railRight = lastRect.left + lastRect.width / 2 - trackRect.left;
       const railW = Math.max(1, railRight - railLeft);
       setRail({ left: railLeft, width: railW });
@@ -124,7 +123,9 @@ export default function Navbar() {
       stopsRef.current = nav
         .map((item, i) => {
           const dot = dots[i];
-          const section = document.querySelector(item.href) as HTMLElement | null;
+          const section = document.querySelector(
+            item.href,
+          ) as HTMLElement | null;
           if (!dot || !section) return null;
           const dotRect = dot.getBoundingClientRect();
           const x =
@@ -192,156 +193,203 @@ export default function Navbar() {
     return () => obs.disconnect();
   }, []);
 
+  // Locking the menu open needs more than body overflow: ScrollSmoother
+  // moves the page with a transform, so the body is not what scrolls and
+  // hiding its overflow does nothing. Pausing the smoother is what
+  // actually stops the page moving behind the overlay.
   useEffect(() => {
+    const smoother = getSmoother();
+    smoother?.paused(open);
     document.body.style.overflow = open ? "hidden" : "";
+    return () => {
+      getSmoother()?.paused(false);
+      document.body.style.overflow = "";
+    };
   }, [open]);
 
   const go = (href: string) => {
+    // Unpause before scrolling rather than waiting for the effect: the
+    // state update has not been applied yet, so the smoother would still
+    // be frozen when scrollToSection asks it to move.
+    getSmoother()?.paused(false);
     setOpen(false);
     scrollToSection(href);
   };
 
   return (
     <header
-      className={`fixed inset-x-0 top-0 z-50 transition-[transform,opacity] duration-500 ${
-        pastHero || open
-          ? "translate-y-0 opacity-100"
-          : "pointer-events-none -translate-y-full opacity-0"
-      }`}
+      // No transform on the header itself. A transformed element becomes
+      // the containing block for any `position: fixed` inside it, so the
+      // full-screen mobile overlay below would resolve `inset-0` against
+      // this 64px bar instead of the viewport - which put the menu above
+      // the top of the screen with only its bottom edge showing. The
+      // show/hide transform lives on the inner wrapper instead, where the
+      // overlay is a sibling and unaffected.
+      className="fixed inset-x-0 top-0 z-50"
     >
+      {/*
+        Hiding the bar over the hero is a desktop nicety. On a phone it
+        took the only menu button on the page with it - the burger was
+        unreachable until you had already scrolled past the hero, and the
+        menu could never be opened from the top of the page.
+      */}
       <div
-        className={`relative border-b transition-colors duration-500 ${
-          scrolled
-            ? "border-line bg-ink/90 backdrop-blur-sm"
-            : "border-transparent"
+        className={`relative z-50 transition-[transform,opacity] duration-500 ${
+          pastHero || open
+            ? "translate-y-0 opacity-100"
+            : "md:pointer-events-none md:-translate-y-full md:opacity-0"
         }`}
       >
-        <div className="container-x grid h-16 grid-cols-2 items-center md:grid-cols-[1fr_auto_1fr]">
-          <button
-            onClick={() => go("#top")}
-            aria-label="Home"
-            data-cursor
-            className="justify-self-start"
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/logo.webp"
-              alt="Descience Open Source Club"
-              className="h-9 w-auto"
-            />
-          </button>
+        <div
+          className={`relative border-b transition-colors duration-500 ${
+            scrolled
+              ? "border-line bg-ink/90 backdrop-blur-sm"
+              : "border-transparent"
+          }`}
+        >
+          <div className="container-x grid h-16 grid-cols-2 items-center md:grid-cols-[1fr_auto_1fr]">
+            <button
+              onClick={() => go("#top")}
+              aria-label="Home"
+              data-cursor
+              // The hero shows the full logo already, so the bar's copy stays
+              // out of the way on mobile until the page has scrolled.
+              className={`justify-self-start transition-opacity duration-300 ${
+                scrolled || open
+                  ? "opacity-100"
+                  : "pointer-events-none opacity-0 md:pointer-events-auto md:opacity-100"
+              }`}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/logo.webp"
+                alt="Descience Open Source Club"
+                className="h-9 w-auto"
+              />
+            </button>
 
-          {/* Commit-timeline nav */}
-          <nav className="hidden justify-self-center md:block">
-            <div ref={trackRef} className="relative flex items-end gap-6 px-4">
-              {/* Rail runs from the first dot's center to the last dot's
+            {/* Commit-timeline nav */}
+            <nav className="hidden justify-self-center md:block">
+              <div
+                ref={trackRef}
+                className="relative flex items-end gap-6 px-4"
+              >
+                {/* Rail runs from the first dot's center to the last dot's
                   center, measured at runtime. The dots are 9px tall and sit
                   on the container's baseline (items-end), so their centers
                   are 4.5px above the bottom edge. */}
-              <span
-                ref={railRef}
-                className="pointer-events-none absolute bottom-[3.5px] h-[2px] rounded-full bg-line"
-                style={{ left: rail.left, width: rail.width }}
-              />
-              {/* Active filled progress line, on the exact same track */}
-              <span
-                ref={barRef}
-                className="pointer-events-none absolute bottom-[3.5px] h-[2px] origin-left rounded-full bg-gradient-to-r from-accent via-primary to-primary-soft"
-                style={{
-                  left: rail.left,
-                  width: rail.width,
-                  transform: "scaleX(0)",
-                  willChange: "transform",
-                }}
-              />
-              {nav.map((item, i) => {
-                const isActive = i === active;
-                const isPassed = active >= i;
-                return (
-                  <button
-                    key={item.href}
-                    onClick={() => go(item.href)}
-                    className="group flex flex-col items-center gap-2 relative z-10"
-                  >
-                    <span
-                      className={`font-mono text-[11px] font-bold uppercase tracking-[0.14em] transition-colors duration-300 ${
-                        isActive
-                          ? "text-primary-dark"
-                          : isPassed
-                            ? "text-fg"
-                            : "text-muted group-hover:text-fg"
-                      }`}
+                <span
+                  ref={railRef}
+                  className="pointer-events-none absolute bottom-[3.5px] h-[2px] rounded-full bg-line"
+                  style={{ left: rail.left, width: rail.width }}
+                />
+                {/* Active filled progress line, on the exact same track */}
+                <span
+                  ref={barRef}
+                  className="pointer-events-none absolute bottom-[3.5px] h-[2px] origin-left rounded-full bg-gradient-to-r from-accent via-primary to-primary-soft"
+                  style={{
+                    left: rail.left,
+                    width: rail.width,
+                    transform: "scaleX(0)",
+                    willChange: "transform",
+                  }}
+                />
+                {nav.map((item, i) => {
+                  const isActive = i === active;
+                  const isPassed = active >= i;
+                  return (
+                    <button
+                      key={item.href}
+                      onClick={() => go(item.href)}
+                      className="group flex flex-col items-center gap-2 relative z-10"
                     >
-                      {item.label}
-                    </span>
-                    <span
-                      ref={(el) => {
-                        dotRefs.current[i] = el;
-                      }}
-                      className={`relative z-10 h-[9px] w-[9px] rounded-full border transition-all duration-300 ${
-                        isActive
-                          ? "scale-125 border-primary bg-primary shadow-[0_0_8px_rgba(76,175,80,0.6)]"
-                          : isPassed
-                            ? "border-primary bg-primary-soft"
-                            : "border-line bg-surface group-hover:border-primary"
-                      }`}
-                    />
-                  </button>
-                );
-              })}
-            </div>
-          </nav>
+                      <span
+                        className={`font-mono text-[11px] font-bold uppercase tracking-[0.14em] transition-colors duration-300 ${
+                          isActive
+                            ? "text-primary-dark"
+                            : isPassed
+                              ? "text-fg"
+                              : "text-muted group-hover:text-fg"
+                        }`}
+                      >
+                        {item.label}
+                      </span>
+                      <span
+                        ref={(el) => {
+                          dotRefs.current[i] = el;
+                        }}
+                        className={`relative z-10 h-[9px] w-[9px] rounded-full border transition-all duration-300 ${
+                          isActive
+                            ? "scale-125 border-primary bg-primary shadow-[0_0_8px_rgba(76,175,80,0.6)]"
+                            : isPassed
+                              ? "border-primary bg-primary-soft"
+                              : "border-line bg-surface group-hover:border-primary"
+                        }`}
+                      />
+                    </button>
+                  );
+                })}
+              </div>
+            </nav>
 
-          {/* Full-height Fused Top Bar CTA */}
-          <div className="hidden h-16 items-center justify-self-end md:flex">
-            <div className="flex h-full items-stretch border-x border-line">
-              <a
-                href="/enquiry"
-                className="flex items-center bg-primary/10 px-6 font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-primary-dark transition-colors hover:bg-primary/20 hover:text-primary-dark"
-              >
-                Get in touch
-              </a>
-              <a
-                href="http://membership.descienceosclub.com/"
-                target="_blank"
-                rel="noreferrer"
-                className="flex items-center bg-primary-dark px-6 font-mono text-[11px] font-bold uppercase tracking-[0.14em] !text-white hover:!text-white transition-colors hover:bg-primary"
-                style={{ color: "#ffffff" }}
-              >
-                Become a member
-              </a>
+            {/* Full-height Fused Top Bar CTA */}
+            <div className="hidden h-16 items-center justify-self-end md:flex">
+              <div className="flex h-full items-stretch border-x border-line">
+                <a
+                  href="/enquiry"
+                  className="flex items-center bg-primary/10 px-6 font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-primary-dark transition-colors hover:bg-primary/20 hover:text-primary-dark"
+                >
+                  Get in touch
+                </a>
+                <a
+                  href="http://membership.descienceosclub.com/"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center bg-primary-dark px-6 font-mono text-[11px] font-bold uppercase tracking-[0.14em] !text-white hover:!text-white transition-colors hover:bg-primary"
+                  style={{ color: "#ffffff" }}
+                >
+                  Become a member
+                </a>
+              </div>
             </div>
+
+            {/* Mobile burger */}
+            <button
+              onClick={() => setOpen((v) => !v)}
+              className="relative z-50 flex h-11 w-11 flex-col items-center justify-center gap-2 justify-self-end md:hidden"
+              aria-label={open ? "Close menu" : "Open menu"}
+              aria-expanded={open}
+              aria-controls="mobile-menu"
+            >
+              <span
+                className={`h-px w-6 bg-fg transition-transform duration-300 ${
+                  open ? "translate-y-[4.5px] rotate-45" : ""
+                }`}
+              />
+              <span
+                className={`h-px w-6 bg-fg transition-transform duration-300 ${
+                  open ? "-translate-y-[4.5px] -rotate-45" : ""
+                }`}
+              />
+            </button>
           </div>
-
-          {/* Mobile burger */}
-          <button
-            onClick={() => setOpen((v) => !v)}
-            className="flex h-10 w-10 flex-col items-center justify-center gap-2 justify-self-end md:hidden"
-            aria-label="Menu"
-          >
-            <span
-              className={`h-px w-6 bg-fg transition-transform duration-300 ${
-                open ? "translate-y-[4.5px] rotate-45" : ""
-              }`}
-            />
-            <span
-              className={`h-px w-6 bg-fg transition-transform duration-300 ${
-                open ? "-translate-y-[4.5px] -rotate-45" : ""
-              }`}
-            />
-          </button>
         </div>
       </div>
 
-      {/* Mobile overlay */}
+      {/* Mobile overlay - sibling of the transformed bar, so `fixed`
+          resolves against the viewport. */}
       <div
-        className={`fixed inset-0 z-40 bg-ink/97 backdrop-blur-xl transition-all duration-500 md:hidden ${
+        id="mobile-menu"
+        className={`fixed inset-0 z-40 overflow-y-auto overscroll-contain bg-ink/97 backdrop-blur-xl transition-all duration-500 md:hidden ${
           open
             ? "pointer-events-auto opacity-100"
             : "pointer-events-none opacity-0"
         }`}
       >
-        <nav className="container-x flex h-full flex-col justify-center gap-2">
+        {/* min-h-full rather than h-full, with the bar's height cleared at
+            the top: on a short screen the links overflow, and the overlay
+            has to scroll instead of cutting them off. */}
+        <nav className="container-x flex min-h-full flex-col justify-center gap-2 pb-10 pt-20">
           {nav.map((item, i) => (
             <button
               key={item.href}
@@ -358,10 +406,7 @@ export default function Navbar() {
             </button>
           ))}
           <div className="mt-8 flex flex-col gap-3">
-            <a
-              href="/enquiry"
-              className="btn btn-ghost justify-center"
-            >
+            <a href="/enquiry" className="btn btn-ghost justify-center">
               Get in touch
             </a>
             <a
