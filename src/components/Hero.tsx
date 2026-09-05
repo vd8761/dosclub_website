@@ -1,6 +1,6 @@
 "use client";
 
-import { CSSProperties, useRef } from "react";
+import { CSSProperties, Suspense, useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "@/lib/gsap";
 import RevealText from "./ui/RevealText";
@@ -8,19 +8,19 @@ import Magnetic from "./ui/Magnetic";
 import CodePane from "./CodePane";
 import HeroProof from "./HeroProof";
 import { scrollToSection } from "./SmoothScroll";
-import {
-  formatEventDate,
-  getHeroRibbonEvent,
-  type ClubEvent,
-} from "@/lib/events";
+import HeroEventRibbon, {
+  HeroEventRibbonFallback,
+} from "./HeroEventRibbon";
+import { type ClubEvent } from "@/lib/events";
 
 export default function Hero({
-  sessions,
+  sessionsPromise,
 }: {
-  sessions?: ClubEvent[];
+  // Unawaited on purpose: the hero paints immediately and only the event
+  // ribbon suspends while the query lands.
+  sessionsPromise?: Promise<ClubEvent[]>;
 }) {
   const root = useRef<HTMLElement>(null);
-  const heroRibbon = getHeroRibbonEvent(sessions);
 
   useGSAP(
     () => {
@@ -99,36 +99,13 @@ export default function Hero({
             />
           </div>
 
-          {/* Next-event / Ongoing ribbon - displays live status or hides if none */}
-          {heroRibbon && (
-            <div data-hero-fade className="mb-4 lg:mb-5 flex">
-              <button
-                onClick={() => scrollToSection("#events")}
-                className="group inline-flex max-w-full cursor-pointer items-center flex-wrap gap-x-3 gap-y-1 rounded-2xl sm:rounded-full border border-line bg-surface/90 px-3.5 py-1.5 sm:px-4 sm:py-2 text-left shadow-sm backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-accent hover:bg-surface hover:shadow-md"
-              >
-                {heroRibbon.isOngoing ? (
-                  <span className="inline-flex items-center gap-1.5 font-mono text-[10.5px] sm:text-xs font-bold uppercase tracking-[0.14em] text-accent-dark">
-                    <span className="h-2 w-2 rounded-full bg-accent animate-pulse" />
-                    Ongoing
-                  </span>
-                ) : (
-                  <span className="font-mono text-[10.5px] sm:text-xs font-bold uppercase tracking-[0.14em] text-primary-dark">
-                    Next up
-                  </span>
-                )}
-                <span className="text-xs sm:text-sm font-semibold text-fg group-hover:text-accent-dark">
-                  {heroRibbon.event.title}
-                </span>
-                <span className="font-mono text-[10.5px] sm:text-xs text-muted">
-                  {formatEventDate(heroRibbon.event)}
-                </span>
-                <span
-                  aria-hidden
-                  className="font-mono text-xs text-primary transition-transform duration-300 group-hover:translate-x-0.5"
-                >
-                  {"->"}
-                </span>
-              </button>
+          {/* Next-event / Ongoing ribbon - streams in behind its own
+              boundary, so a slow events query never delays the hero. */}
+          {sessionsPromise && (
+            <div data-hero-fade>
+              <Suspense fallback={<HeroEventRibbonFallback />}>
+                <HeroEventRibbon sessionsPromise={sessionsPromise} />
+              </Suspense>
             </div>
           )}
 

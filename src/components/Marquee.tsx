@@ -32,12 +32,45 @@ export default function Marquee() {
         },
       });
 
+      // Once the skew has eased back to flat there is nothing to write, and
+      // writing skewX anyway repaints a very wide element every frame.
+      let settled = false;
       const tick = () => {
         target = gsap.utils.interpolate(target, 0, 0.08);
+        if (Math.abs(target) < 0.01) {
+          if (settled) return;
+          settled = true;
+          target = 0;
+        } else {
+          settled = false;
+        }
         skewTo(target);
       };
-      gsap.ticker.add(tick);
-      return () => gsap.ticker.remove(tick);
+
+      // The marquee sits between two tall sections, so it spends most of the
+      // page off screen. Neither the skew ticker nor the CSS scroll animation
+      // is worth a frame of work while it is not visible.
+      let ticking = false;
+      const io = new IntersectionObserver(
+        ([entry]) => {
+          const visible = entry.isIntersecting;
+          track.current?.classList.toggle("is-paused", !visible);
+          if (visible && !ticking) {
+            ticking = true;
+            gsap.ticker.add(tick);
+          } else if (!visible && ticking) {
+            ticking = false;
+            gsap.ticker.remove(tick);
+          }
+        },
+        { rootMargin: "120px 0px" },
+      );
+      if (root.current) io.observe(root.current);
+
+      return () => {
+        io.disconnect();
+        gsap.ticker.remove(tick);
+      };
     },
     { scope: root },
   );

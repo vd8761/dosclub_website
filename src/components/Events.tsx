@@ -84,17 +84,15 @@ export default function Events({ events }: { events: ClubEvent[] }) {
                     type="button"
                     onClick={() => setOpenId(e.id)}
                     aria-haspopup="dialog"
-                    className={`group grid w-full grid-cols-[auto_1fr] items-center gap-6 rounded-2xl border border-line bg-surface p-6 text-left transition-all duration-300 hover:-translate-y-1 hover:border-accent hover:shadow-[0_24px_64px_-48px_rgba(12,51,70,0.6)] md:grid-cols-[auto_1fr_auto] md:p-8 ${
-                      past ? "opacity-65" : ""
-                    }`}
+                    className={`group grid w-full grid-cols-[auto_1fr] items-center gap-6 rounded-2xl border border-line bg-surface p-6 text-left transition-all duration-300 hover:-translate-y-1 hover:border-accent hover:shadow-[0_24px_64px_-48px_rgba(12,51,70,0.6)] md:grid-cols-[auto_1fr_auto] md:p-8 ${past ? "opacity-65" : ""
+                      }`}
                   >
                     {/* Date rail */}
                     <span
-                      className={`flex h-16 w-16 shrink-0 flex-col items-center justify-center rounded-xl font-mono leading-none ${
-                        past
+                      className={`flex h-16 w-16 shrink-0 flex-col items-center justify-center rounded-xl font-mono leading-none ${past
                           ? "bg-ink-2 text-muted"
                           : "bg-deep text-[color:var(--color-on-deep)]"
-                      }`}
+                        }`}
                     >
                       <span className="text-xl font-medium">{day}</span>
                       <span className="mt-2 text-[10px] tracking-[0.14em]">

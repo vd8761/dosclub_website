@@ -542,3 +542,57 @@ button:hover {
     opacity: 1;
   }
 }
+
+/* =========================================================
+ Loading indicator
+ ========================================================= */
+/* Animated ellipsis for the shared events loader caption. Rendered as
+ content so it never affects layout width jitter beyond three chars. */
+.loading-dots::after {
+  content: "";
+  display: inline-block;
+  width: 1.5ch;
+  text-align: left;
+  animation: loading-dots 1.2s steps(4, end) infinite;
+}
+
+@keyframes loading-dots {
+  0% {
+    content: "";
+  }
+  25% {
+    content: ".";
+  }
+  50% {
+    content: "..";
+  }
+  75% {
+    content: "...";
+  }
+}
+
+/* Slim scrollbar for the events timeline column. */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-line) transparent;
+}
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--color-line);
+  border-radius: 999px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loading-dots::after {
+    animation: none;
+    content: "...";
+  }
+}
+
+/* Marquee is paused while it is off screen - a 28s infinite animation on a
+ very wide element is not worth a frame of work nobody can see. */
+.marquee-track.is-paused {
+  animation-play-state: paused;
+}

@@ -7,40 +7,41 @@ import Stats from "@/components/Stats";
 import Manifesto from "@/components/Manifesto";
 import Domains from "@/components/Domains";
 import Journey from "@/components/Journey";
-import OpenSourceFriday from "@/components/OpenSourceFriday";
+import EventsSection from "@/components/EventsSection";
+import EventsSectionSkeleton from "@/components/EventsSectionSkeleton";
 import Team from "@/components/Team";
 import Partners from "@/components/Partners";
 import Faq from "@/components/Faq";
-import Join from "@/components/Join";
 import Footer from "@/components/Footer";
-import LoopEnd from "@/components/LoopEnd";
-import { getEvents, getOpenSourceFridays } from "@/lib/cms";
+import { getEvents } from "@/lib/events";
+import { Suspense } from "react";
 
-/**
- * Vercel Edge Cache: 24-hour fallback.
- * Primary revalidations are triggered on-demand via webhooks (/api/revalidate)
- * whenever events are published in the CMS, so regular visitors never wake up Render.
- */
-export const revalidate = 86400;
+// Incremental static regeneration: visitors are always served the cached
+// copy immediately, and Next refreshes it in the background once the copy
+// is older than this many seconds. Nobody waits on the database. The
+// Suspense fallbacks below only surface on a cold cache.
+export const revalidate = 60;
 
-export default async function Home() {
-  const { events } = await getEvents();
-  const { events: ossFridaySessions } = await getOpenSourceFridays();
-  const sessions = events.length > 0 ? events : ossFridaySessions;
+export default function Home() {
+  // Kicked off but deliberately not awaited: the shell renders straight
+  // away and the two event-dependent spots stream in on their own.
+  const sessionsPromise = getEvents();
 
   return (
     <>
       <Navbar />
       <SmoothScroll>
         <main>
-          <Hero sessions={sessions} />
+          <Hero sessionsPromise={sessionsPromise} />
           <Marquee />
           <About />
           <Stats />
           <Manifesto />
           <Domains />
           <Journey />
-          <OpenSourceFriday sessions={sessions} />
+          <Suspense fallback={<EventsSectionSkeleton />}>
+            <EventsSection sessionsPromise={sessionsPromise} />
+          </Suspense>
           <Team />
           <Partners />
           <Faq />

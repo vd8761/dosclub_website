@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getEvents, getOpenSourceFridays } from "@/lib/cms";
+import { getEvents } from "@/lib/events";
 import EventsTimeline from "@/components/EventsTimeline";
 
 export const metadata: Metadata = {
@@ -8,16 +8,13 @@ export const metadata: Metadata = {
     "Explore all past, ongoing, and upcoming workshops, webinars, build clinics, and sessions hosted by Descience Open Source Club.",
 };
 
-/**
- * Vercel Edge Cache: 24-hour fallback revalidation.
- * Revalidations are triggered on-demand via CMS webhooks (/api/revalidate).
- */
-export const revalidate = 86400;
+// Same stale-while-revalidate deal as the landing page: serve the cached
+// timeline instantly, refresh it in the background. loading.tsx only shows
+// on a cold cache.
+export const revalidate = 60;
 
 export default async function EventsPage() {
-  const { events } = await getEvents();
-  const { events: ossFridaySessions } = await getOpenSourceFridays();
-  const sessions = events.length > 0 ? events : ossFridaySessions;
+  const sessions = await getEvents();
 
   return <EventsTimeline initialEvents={sessions} />;
 }

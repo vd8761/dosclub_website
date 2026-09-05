@@ -1,9 +1,9 @@
 "use client";
 
-import { FormEvent, Suspense, useEffect, useState } from "react";
+import { FormEvent, Suspense, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { site, socials, domains } from "@/data/site";
+import { domains } from "@/data/site";
 import RevealText from "@/components/ui/RevealText";
 import Footer from "@/components/Footer";
 import TurnstileWidget from "@/components/TurnstileWidget";
@@ -58,19 +58,18 @@ type Status = "idle" | "sending" | "sent" | "error";
 
 function EnquiryFormContent() {
   const searchParams = useSearchParams();
-  const [activeCategory, setActiveCategory] = useState<Category | null>(null);
-
-  useEffect(() => {
+  const [activeCategory, setActiveCategory] = useState<Category | null>(() => {
     const roleParam = searchParams.get("role") || searchParams.get("type");
     if (roleParam) {
       const match = CATEGORIES.find(
         (c) => c.id === roleParam.toLowerCase() || c.label.toLowerCase().includes(roleParam.toLowerCase())
       );
       if (match) {
-        setActiveCategory(match.id);
+        return match.id;
       }
     }
-  }, [searchParams]);
+    return null;
+  });
 
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState("");

@@ -111,7 +111,7 @@ export default function EventModal({
             <img
               src={event.cover.url}
               alt={event.cover.alt ?? ""}
-              className="h-40 w-full object-cover sm:h-56"
+              className="h-40 w-full object-cover object-top sm:h-56"
             />
           )}
 

@@ -149,13 +149,6 @@ export const events = [
 
 /**
  * Open Source Friday - the weekly contribution session.
- *
- * Fallback only: once the CMS `open_source_friday` type is published these
- * are replaced by real entries. See `docs/cms-open-source-friday.md`.
- *
- * Deliberately date-less. Hardcoded dates go stale and the section would
- * quietly empty itself once they passed, so `lib/cms.ts` pins this roster
- * onto the next few actual Fridays at render time.
  */
 export const ossFridayIntro = {
   cadence: "Every Friday, 18:00 IST",
@@ -186,6 +179,27 @@ export const ossFridays = [
   },
 ];
 
+/**
+ * Student teams, each named after a colour. The group photo for a team is
+ * `/team/<slug>.jpeg`, and `swatch` is the dot shown next to the name.
+ */
+export const studentTeams = [
+  { name: "Red", slug: "red", swatch: "#e04a3f" },
+  { name: "Orange", slug: "orange", swatch: "#ef8b34" },
+  { name: "Yellow", slug: "yellow", swatch: "#e8bf3c" },
+  { name: "Green", slug: "green", swatch: "#4caf50" },
+  { name: "Blue", slug: "blue", swatch: "#1593c3" },
+  { name: "Purple", slug: "purple", swatch: "#8256c4" },
+  { name: "Pink", slug: "pink", swatch: "#e0699b" },
+  { name: "Black", slug: "black", swatch: "#20303a" },
+  { name: "Silver", slug: "silver", swatch: "#a8b6bf" },
+  { name: "White", slug: "white", swatch: "#f2f5f7" },
+];
+
+/**
+ * Industry mentors. Kept for reference - the people section now shows the
+ * student teams instead, and HeroProof still reads the count.
+ */
 export const team = [
   {
     name: "Mr. Sathya Prakash Sekaran",
