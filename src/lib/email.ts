@@ -149,7 +149,7 @@ export type Enquiry = {
   interests?: string[];
 };
 
-const DOMAIN = process.env.BASEURL as string;
+const DOMAIN = process.env.BASEURL || process.env.NEXT_PUBLIC_SITE_URL || "https://descienceosclub.com";
 
 function renderShell(badge: string, heading: string, intro: string, contentHtml: string, actionHtml?: string): string {
   return `<!doctype html>
