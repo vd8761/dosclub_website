@@ -138,7 +138,10 @@ async function verifyTurnstileToken(token: unknown, ip: string): Promise<boolean
 
     const res = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
       method: "POST",
-      body: formData,
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: formData.toString(),
       cache: "no-store",
     });
 
@@ -146,6 +149,10 @@ async function verifyTurnstileToken(token: unknown, ip: string): Promise<boolean
       success: boolean;
       "error-codes"?: string[];
     };
+
+    if (!data.success) {
+      console.error("[turnstile] Cloudflare rejected the token. Error codes:", data["error-codes"]);
+    }
 
     return Boolean(data.success);
   } catch (err) {
