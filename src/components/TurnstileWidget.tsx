@@ -74,13 +74,19 @@ export default function TurnstileWidget({
     checkLoaded();
   }, []);
 
+  // Store callbacks in a ref to avoid re-rendering the widget when they change
+  const callbacks = useRef({ onVerify, onExpire, onError });
+  useEffect(() => {
+    callbacks.current = { onVerify, onExpire, onError };
+  }, [onVerify, onExpire, onError]);
+
   useEffect(() => {
     if (!isLoaded || !containerRef.current || !window.turnstile) return;
     if (!siteKey) {
       console.error(
         "[Turnstile] NEXT_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY is not set - the captcha cannot render.",
       );
-      onError?.();
+      callbacks.current.onError?.();
       return;
     }
 
@@ -98,13 +104,13 @@ export default function TurnstileWidget({
         sitekey: siteKey,
         theme: "dark",
         callback: (token: string) => {
-          onVerify(token);
+          callbacks.current.onVerify(token);
         },
         "expired-callback": () => {
-          onExpire?.();
+          callbacks.current.onExpire?.();
         },
         "error-callback": () => {
-          onError?.();
+          callbacks.current.onError?.();
         },
       });
     } catch (err) {
@@ -120,7 +126,7 @@ export default function TurnstileWidget({
         }
       }
     };
-  }, [isLoaded, siteKey, onVerify, onExpire, onError]);
+  }, [isLoaded, siteKey]);
 
   return (
     <div className={`turnstile-container flex flex-col gap-1.5 ${className}`}>
