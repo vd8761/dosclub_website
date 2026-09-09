@@ -19,18 +19,23 @@ function LogoTile({
   className?: string;
   featured?: boolean;
 }) {
+  // Selectively enlarge specific logos as requested
+  const isLarge = src.includes("academic_partners/02.") || src.includes("academic_partners/05.");
+
   return (
     <div
-      className={`group relative flex items-center justify-center overflow-hidden rounded-2xl border bg-surface p-4 sm:p-5 transition-all duration-300 hover:-translate-y-1.5 hover:border-primary/50 hover:shadow-[0_20px_50px_-24px_rgba(12,51,70,0.35)] ${
-        featured ? "border-primary/30" : "border-line"
-      } ${className}`}
+      className={`group relative flex items-center justify-center overflow-hidden rounded-2xl border bg-surface transition-all duration-300 hover:-translate-y-1.5 hover:border-primary/50 hover:shadow-[0_20px_50px_-24px_rgba(12,51,70,0.35)] ${
+        isLarge ? "p-1 sm:p-1.5" : "p-4 sm:p-5"
+      } ${featured ? "border-primary/30" : "border-line"} ${className}`}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={src}
         alt={altFromSrc(src)}
         loading="lazy"
-        className="h-full w-full max-h-full max-w-full object-contain p-1.5 transition-transform duration-300 group-hover:scale-105"
+        className={`h-full w-full max-h-full max-w-full object-contain transition-transform duration-300 group-hover:scale-105 ${
+          isLarge ? "p-0" : "p-1.5"
+        }`}
       />
     </div>
   );

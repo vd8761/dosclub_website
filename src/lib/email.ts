@@ -149,7 +149,7 @@ export type Enquiry = {
   interests?: string[];
 };
 
-const DOMAIN = "https://descienceosclub.com";
+const DOMAIN = process.env.BASEURL as string;
 
 function renderShell(badge: string, heading: string, intro: string, contentHtml: string, actionHtml?: string): string {
   return `<!doctype html>
@@ -163,14 +163,17 @@ function renderShell(badge: string, heading: string, intro: string, contentHtml:
   <div style="max-width:600px;margin:0 auto;background-color:#0d212d;border:1px solid #1c394a;border-radius:20px;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,0.5);">
     
     <!-- Top Brand Header Bar -->
-    <div style="padding:28px 36px;background:linear-gradient(135deg, #0f2736 0%, #0a1b26 100%);border-bottom:1px solid #1c394a;">
+    <div style="padding:32px 36px;text-align:center;background:linear-gradient(135deg, #0f2736 0%, #0a1b26 100%);border-bottom:1px solid #1c394a;">
+      <div style="margin-bottom:24px;">
+        <img src="${DOMAIN}/dos_white_logo.png" alt="DOS Club Logo" style="height:48px;display:block;margin:0 auto;border:0;" />
+      </div>
       <div style="display:inline-block;padding:4px 12px;background-color:rgba(20,184,166,0.12);border:1px solid rgba(20,184,166,0.35);border-radius:100px;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:11px;font-weight:700;color:#14b8a6;letter-spacing:0.12em;text-transform:uppercase;">
         ${esc(badge)}
       </div>
-      <h1 style="margin:14px 0 0;font-size:24px;font-weight:700;color:#f1f7fa;line-height:1.25;letter-spacing:-0.02em;">
+      <h1 style="margin:16px 0 0;font-size:24px;font-weight:700;color:#f1f7fa;line-height:1.25;letter-spacing:-0.02em;">
         ${esc(heading)}
       </h1>
-      <p style="margin:8px 0 0;font-size:14px;color:#8ba2b0;line-height:1.5;">
+      <p style="margin:10px 0 0;font-size:14px;color:#8ba2b0;line-height:1.5;max-width:480px;margin-left:auto;margin-right:auto;">
         ${intro}
       </p>
     </div>
@@ -183,12 +186,18 @@ function renderShell(badge: string, heading: string, intro: string, contentHtml:
 
     <!-- Footer Bar -->
     <div style="padding:20px 36px;background-color:#091924;border-top:1px solid #162f3e;font-size:12px;color:#6d8494;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;">
-      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
-        <span>${esc(site.name)}</span>
-        <a href="${DOMAIN}" target="_blank" style="color:#14b8a6;text-decoration:none;font-weight:600;">
-          ${DOMAIN.replace(/^https?:\/\//, "")} &rarr;
-        </a>
-      </div>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="font-size:12px;color:#6d8494;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;">
+        <tr>
+          <td align="left" style="padding:0;margin:0;">
+            ${esc(site.name)}
+          </td>
+          <td align="right" style="padding:0;margin:0;">
+            <a href="${DOMAIN}" target="_blank" style="color:#14b8a6;text-decoration:none;font-weight:600;">
+              ${DOMAIN.replace(/^https?:\/\//, "")} &rarr;
+            </a>
+          </td>
+        </tr>
+      </table>
     </div>
 
   </div>
@@ -254,8 +263,7 @@ function renderSummaryText(e: Enquiry): string {
  * Creates the Admin notification email.
  */
 export function adminEmail(e: Enquiry) {
-  const categoryTag = e.category ? ` [${e.category}]` : "";
-  const subject = `[DOSClub Enquiry]${categoryTag} ${e.name}`;
+  const subject = `New DOSClub Enquiry: ${e.name} ${e.category ? `(${e.category})` : ""}`;
 
   const actionHtml = `<a href="mailto:${esc(e.email)}?subject=Re:%20Your%20DOSClub%20Enquiry" target="_blank" style="display:inline-block;padding:12px 24px;background-color:#14b8a6;color:#07151e;font-size:13px;font-weight:700;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;text-transform:uppercase;letter-spacing:0.08em;text-decoration:none;border-radius:8px;">
     Reply to ${esc(e.name)} &rarr;

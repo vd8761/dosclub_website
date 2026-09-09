@@ -115,7 +115,7 @@ export const journey = [
 /** Stats band - update with real numbers when available */
 export const stats = [
   { value: 6000, suffix: "+", label: "Community members" },
-  { value: 167, suffix: "+", label: "Workshops & webinars" },
+  { value: 50, suffix: "+", label: "Workshops & webinars" },
   { value: 10, suffix: "+", label: "Partner institutions" },
   { value: 41, suffix: "+", label: "Domestic & International Internships" },
 ];
@@ -134,7 +134,7 @@ export const events = [
     date: "07 May 2024",
     time: "10:00 - 16:00 IST",
     location: "Online",
-    host: "G Pavithren",
+    host: "S Gunasekaran",
     tag: "Cloud",
   },
   {
@@ -196,6 +196,10 @@ export const studentTeams = [
   { name: "Purple", image: "/team/Team_Purple.png" },
   { name: "Pink", image: "/team/Team_Pink.png" },
   { name: "White", image: "/team/Team_White.png" },
+  { name: "Black", image: "/team/Team_Black.png" },
+  { name: "Orange", image: "/team/Team_Orange.png" },
+  { name: "Silver", image: "/team/Team_Silver.png" },
+  { name: "Yellow", image: "/team/Team_Yellow.png" },
 ];
 
 /**
@@ -261,8 +265,9 @@ export const faqs = [
 ];
 
 export const socials = [
-  { label: "LinkedIn", href: "#" },
-  { label: "Facebook", href: "#" },
-  { label: "Twitter / X", href: "#" },
-  { label: "YouTube", href: "#" },
+  { label: "Instagram", href: "https://www.instagram.com/descienceopensourceclub" },
+  { label: "LinkedIn", href: "https://www.linkedin.com/company/descience-open-source-club" },
+  { label: "Facebook", href: "http://facebook.com/descienceopensouce" },
+  { label: "YouTube", href: "https://www.youtube.com/@descienceosclub" },
+  { label: "WhatsApp", href: "https://whatsapp.com/channel/0029Vb6yhyh5Ui2YyHbIL117" },
 ];

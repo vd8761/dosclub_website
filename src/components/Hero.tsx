@@ -5,6 +5,7 @@ import { useGSAP } from "@gsap/react";
 import { gsap } from "@/lib/gsap";
 import RevealText from "./ui/RevealText";
 import Magnetic from "./ui/Magnetic";
+import AsciiField from "./AsciiField";
 import CodePane from "./CodePane";
 import HeroProof from "./HeroProof";
 import { scrollToSection } from "./SmoothScroll";
@@ -64,7 +65,7 @@ export default function Hero({
     <section
       id="top"
       ref={root}
-      className="relative flex min-h-[100svh] w-full flex-col justify-center overflow-hidden pt-24 pb-12 sm:pt-28 sm:pb-16 lg:py-16 xl:py-20"
+      className="relative flex min-h-[100svh] w-full flex-col justify-center overflow-hidden pt-16 pb-12 sm:pt-20 sm:pb-16 lg:pt-10 lg:pb-16 xl:pt-12 xl:pb-20"
     >
       {/* Structural grid - gives the empty space a reason to be there */}
       <div
@@ -83,6 +84,9 @@ export default function Hero({
         className="blob -right-24 bottom-0 -z-20 h-[42rem] w-[42rem] opacity-30"
         style={{ "--blob-rgb": "var(--rgb-accent)" } as CSSProperties}
       />
+
+      {/* Interactive ASCII source field (mouse + scroll reactive) */}
+      <AsciiField className="grid-mask absolute inset-0 -z-10" />
 
       <div
         data-hero-content

@@ -152,10 +152,10 @@ function EnquiryFormContent() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/logo.webp" alt="DOS Club" className="h-9 w-auto" />
           </Link>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <Link
               href="/"
-              className="font-mono text-xs font-bold uppercase tracking-wider text-muted hover:text-fg transition-colors"
+              className="group flex items-center justify-center rounded-full border-2 border-primary/20 bg-transparent px-5 py-2 text-[11px] font-bold uppercase tracking-[0.15em] whitespace-nowrap text-primary-dark transition-all duration-300 hover:border-primary hover:bg-primary/5 hover:scale-[1.02]"
             >
               ← Back to Home
             </Link>
@@ -163,10 +163,13 @@ function EnquiryFormContent() {
               href="http://membership.descienceosclub.com/"
               target="_blank"
               rel="noreferrer"
-              className="hidden sm:inline-flex items-center bg-primary-dark px-5 py-2 font-mono text-[11px] font-bold uppercase tracking-wider !text-white hover:!text-white transition-colors hover:bg-primary rounded-full"
-              style={{ color: "#ffffff" }}
+              className="hidden sm:inline-flex relative overflow-hidden group items-center justify-center rounded-full bg-gradient-to-r from-primary to-primary-dark px-6 py-2.5 text-[11px] font-bold uppercase tracking-[0.15em] whitespace-nowrap text-white shadow-[0_4px_20px_rgba(var(--rgb-primary),0.4)] transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_8px_30px_rgba(var(--rgb-primary),0.6)]"
             >
-              Become a Member
+              <span className="relative z-10 !text-white">Become a member</span>
+              {/* Shine effect */}
+              <div className="absolute inset-0 flex h-full w-full justify-center [transform:skew(-12deg)_translateX(-150%)] group-hover:duration-1000 group-hover:[transform:skew(-12deg)_translateX(150%)]">
+                <div className="relative h-full w-8 bg-white/20" />
+              </div>
             </a>
           </div>
         </div>
@@ -265,18 +268,17 @@ function EnquiryFormContent() {
                 </p>
               </div>
             ) : status === "sent" ? (
-              /* Success Confirmation */
               <div className="rounded-3xl border border-line bg-surface p-10 sm:p-14 shadow-lg text-center max-w-2xl mx-auto flex flex-col items-center">
                 <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary font-mono text-2xl text-white shadow-md">
                   ✓
                 </div>
                 <h2 className="display mt-6 text-3xl font-bold">Enquiry Received!</h2>
-                <p className="mt-4 text-muted leading-relaxed">
+                <p className="mt-5 text-muted leading-loose text-base sm:text-lg">
                   {copySent ? (
                     <>
                       Thank you for contacting us regarding the{" "}
-                      <span className="font-semibold text-fg">{currentRole?.label}</span> pathway.
-                      We&apos;ve sent a confirmation email to{" "}
+                      <span className="font-semibold text-fg">{currentRole?.label}</span>{" "}
+                      pathway. We&apos;ve sent a confirmation email to{" "}
                       <span className="font-semibold text-fg">{form.email}</span>.
                     </>
                   ) : (
@@ -285,18 +287,22 @@ function EnquiryFormContent() {
                     </>
                   )}
                 </p>
-                <div className="mt-8 flex flex-wrap justify-center gap-4">
+                <div className="mt-10 flex flex-wrap justify-center gap-4">
                   <button
                     type="button"
                     onClick={() => {
                       setStatus("idle");
                       setActiveCategory(null);
                     }}
-                    className="btn btn-primary !py-3"
+                    className="relative overflow-hidden group flex items-center justify-center rounded-full bg-gradient-to-r from-primary to-primary-dark px-8 py-3.5 text-[11px] font-bold uppercase tracking-[0.15em] text-white shadow-[0_4px_20px_rgba(var(--rgb-primary),0.4)] transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_8px_30px_rgba(var(--rgb-primary),0.6)]"
                   >
-                    Submit another enquiry
+                    <span className="relative z-10 !text-white">Submit another enquiry</span>
+                    {/* Shine effect */}
+                    <div className="absolute inset-0 flex h-full w-full justify-center [transform:skew(-12deg)_translateX(-150%)] group-hover:duration-1000 group-hover:[transform:skew(-12deg)_translateX(150%)]">
+                      <div className="relative h-full w-8 bg-white/20" />
+                    </div>
                   </button>
-                  <Link href="/" className="btn btn-ghost !py-3">
+                  <Link href="/" className="group flex items-center justify-center rounded-full border-2 border-primary/20 bg-transparent px-8 py-3 text-[11px] font-bold uppercase tracking-[0.15em] text-primary-dark transition-all duration-300 hover:border-primary hover:bg-primary/5 hover:scale-[1.02]">
                     Back to homepage
                   </Link>
                 </div>

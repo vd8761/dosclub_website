@@ -269,10 +269,11 @@ export default function Navbar() {
             </button>
 
             {/* Commit-timeline nav */}
-            <nav className="hidden justify-self-center md:block">
+            <nav className="hidden justify-self-center md:block w-[360px] lg:w-[460px]">
               <div
                 ref={trackRef}
-                className="relative flex items-end gap-6 px-4"
+                className="relative grid items-end px-4 w-full"
+                style={{ gridTemplateColumns: `repeat(${nav.length}, minmax(0, 1fr))` }}
               >
                 {/* Rail runs from the first dot's center to the last dot's
                   center, measured at runtime. The dots are 9px tall and sit
@@ -301,10 +302,10 @@ export default function Navbar() {
                     <button
                       key={item.href}
                       onClick={() => go(item.href)}
-                      className="group flex flex-col items-center gap-2 relative z-10"
+                      className="group flex flex-col items-center gap-2 relative z-10 w-full"
                     >
                       <span
-                        className={`font-mono text-[11px] font-bold uppercase tracking-[0.14em] transition-colors duration-300 ${
+                        className={`font-mono text-[10px] lg:text-[11px] font-bold uppercase tracking-[0.14em] transition-colors duration-300 ${
                           isActive
                             ? "text-primary-dark"
                             : isPassed
@@ -332,25 +333,26 @@ export default function Navbar() {
               </div>
             </nav>
 
-            {/* Full-height Fused Top Bar CTA */}
-            <div className="hidden h-16 items-center justify-self-end md:flex">
-              <div className="flex h-full items-stretch border-x border-line">
-                <a
-                  href="/enquiry"
-                  className="flex items-center bg-primary/10 px-6 font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-primary-dark transition-colors hover:bg-primary/20 hover:text-primary-dark"
-                >
-                  Get in touch
-                </a>
-                <a
-                  href="http://membership.descienceosclub.com/"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex items-center bg-primary-dark px-6 font-mono text-[11px] font-bold uppercase tracking-[0.14em] !text-white hover:!text-white transition-colors hover:bg-primary"
-                  style={{ color: "#ffffff" }}
-                >
-                  Become a member
-                </a>
-              </div>
+            {/* Premium CTA Buttons */}
+            <div className="hidden h-16 items-center justify-self-end md:flex gap-3 px-4">
+              <a
+                href="/enquiry"
+                className="group flex items-center justify-center rounded-full border-2 border-primary/20 bg-transparent px-5 py-2 text-[11px] font-bold uppercase tracking-[0.15em] whitespace-nowrap text-primary-dark transition-all duration-300 hover:border-primary hover:bg-primary/5 hover:scale-[1.02]"
+              >
+                Get in touch
+              </a>
+              <a
+                href="http://membership.descienceosclub.com/"
+                target="_blank"
+                rel="noreferrer"
+                className="relative overflow-hidden group flex items-center justify-center rounded-full bg-gradient-to-r from-primary to-primary-dark px-6 py-2.5 text-[11px] font-bold uppercase tracking-[0.15em] whitespace-nowrap text-white shadow-[0_4px_20px_rgba(var(--rgb-primary),0.4)] transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_8px_30px_rgba(var(--rgb-primary),0.6)]"
+              >
+                <span className="relative z-10 !text-white">Become a member</span>
+                {/* Shine effect */}
+                <div className="absolute inset-0 flex h-full w-full justify-center [transform:skew(-12deg)_translateX(-150%)] group-hover:duration-1000 group-hover:[transform:skew(-12deg)_translateX(150%)]">
+                  <div className="relative h-full w-8 bg-white/20" />
+                </div>
+              </a>
             </div>
 
             {/* Mobile burger */}

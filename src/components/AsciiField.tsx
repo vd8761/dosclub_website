@@ -25,7 +25,7 @@ export default function AsciiField({ className = "" }: { className?: string }) {
     const coarse = window.matchMedia("(pointer: coarse)").matches;
 
     const chars = "</>{}()[];=+-*$#01_L:.".split("");
-    const cell = coarse ? 32 : 24; // 8px grid
+    const cell = coarse ? 24 : 16; // 8px grid
     const radius = 176;
     const radius2 = radius * radius;
     const SKIP = 0.05; // don't draw barely-visible cells
