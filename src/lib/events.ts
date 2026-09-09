@@ -388,7 +388,7 @@ function mapDbEpisodeToClubEvent(ep: DbEpisode): ClubEvent {
     seats: null,
     seatsLeft: null,
     project: `OSF-Ep${num}`,
-    registerUrl: "https://osf.descienceosclub.com/",
+    registerUrl: `https://osf.descienceosclub.com/register/episode-${num}`,
     status,
     featured: Boolean(ep.is_active),
   };
