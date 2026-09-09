@@ -38,12 +38,22 @@ export const metadata: Metadata = {
       "A community for collaborative learning in web, cloud and open source. Learn, build and ship together.",
     type: "website",
     url: "https://descienceosclub.com",
+    siteName: "Descience Open Source Club",
+    images: [
+      {
+        url: "/dos-badge.png",
+        width: 1200,
+        height: 630,
+        alt: "Descience Open Source Club",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Descience Open Source Club",
     description:
       "A community for collaborative learning in web, cloud and open source.",
+    images: ["/dos-badge.png"],
   },
 };
 
